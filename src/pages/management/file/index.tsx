@@ -4,6 +4,7 @@ import { isNil } from "ramda";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
+import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
 
@@ -27,8 +28,9 @@ const defaultFileValue: File = {
 	modifyTime: new Date(),
 };
 
+const FILE: File[] = FILE_LIST as File[];
+
 export default function FilePage() {
-	const files = useUserFile();
 	const { t } = useTranslation();
 
 	const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
@@ -119,6 +121,16 @@ export default function FilePage() {
 		},
 	];
 
+	const onUpload = () => {
+		// 处理新按钮点击的逻辑
+		console.log('上传文件');
+	};
+
+	const onDownload = () => {
+		// 处理新按钮点击的逻辑
+		console.log('下载文件');
+	};
+
 	const onCreate = (parentId?: string) => {
 		setFileModalProps((prev) => ({
 			...prev,
@@ -141,9 +153,17 @@ export default function FilePage() {
 		<Card
 			title="File List"
 			extra={
-				<Button type="primary" onClick={() => onCreate()}>
-					New
-				</Button>
+						<div>
+							<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onUpload()}>
+									Upload
+							</Button>
+							<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onDownload()}>
+									Download
+							</Button>
+							<Button type="primary" onClick={() => onCreate()}>
+									New
+							</Button>
+					</div>
 			}
 		>
 			<Table
@@ -152,7 +172,7 @@ export default function FilePage() {
 				scroll={{ x: "max-content" }}
 				pagination={false}
 				columns={columns}
-				dataSource={files}
+				dataSource={FILE}
 			/>
 
 			<FileModal {...fileModalProps} />

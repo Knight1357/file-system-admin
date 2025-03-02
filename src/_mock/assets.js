@@ -1,7 +1,7 @@
 import useUserStore from "@/store/userStore";
 import { faker } from "@faker-js/faker";
 
-import { BasicStatus, PermissionType } from "#/enum";
+import { BasicStatus, FileType, PermissionType } from "#/enum";
 /**
  * Organization data mock
  */
@@ -611,113 +611,142 @@ if (import.meta.hot) {
 /**
  * File data mock
  */
-// export const FILE_LIST = [
-// 	{
-// 			id: 'folder1',
-// 			parentId: '',
-// 			name: 'My Documents',
-// 			label: 'Main document folder',
-// 			type: FileType.FOLDER,
-// 			status: BasicStatus.ENABLE,
-// 			createTime: new Date('2023-01-01'),
-// 			modifyTime: new Date('2023-10-01'),
-// 			children: [
-// 					{
-// 							id: 'file1',
-// 							parentId: 'folder1',
-// 							name: 'report.pdf',
-// 							label: 'Quarterly report',
-// 							type: FileType.PDF,
-// 							status: BasicStatus.ENABLE,
-// 							createTime: new Date('2023-03-15'),
-// 							modifyTime: new Date('2023-03-20'),
-// 							size: 256000,
-// 							content: 'This is the content of the quarterly report.'
-// 					},
-// 					{
-// 							id: 'subfolder1',
-// 							parentId: 'folder1',
-// 							name: 'Images',
-// 							label: 'Image collection',
-// 							type: FileType.FOLDER,
-// 							status: BasicStatus.ENABLE,
-// 							createTime: new Date('2023-04-01'),
-// 							modifyTime: new Date('2023-09-15'),
-// 							children: [
-// 									{
-// 											id: 'file2',
-// 											parentId: 'subfolder1',
-// 											name: 'sunset.jpg',
-// 											label: 'Sunset view',
-// 											type: FileType.JPEG,
-// 											status: BasicStatus.ENABLE,
-// 											createTime: new Date('2023-05-10'),
-// 											modifyTime: new Date('2023-05-10'),
-// 											size: 128000,
-// 											content: 'A beautiful sunset image.'
-// 									},
-// 									{
-// 											id: 'file3',
-// 											parentId: 'subfolder1',
-// 											name: 'logo.png',
-// 											label: 'Company logo',
-// 											type: FileType.PNG,
-// 											status: BasicStatus.ENABLE,
-// 											createTime: new Date('2023-06-20'),
-// 											modifyTime: new Date('2023-06-20'),
-// 											size: 64000,
-// 											content: 'The company logo image.'
-// 									}
-// 							]
-// 					}
-// 			]
-// 	},
-// 	{
-// 			id: 'folder2',
-// 			parentId: '',
-// 			name: 'Videos',
-// 			label: 'Video storage',
-// 			type: FileType.FOLDER,
-// 			status: BasicStatus.ENABLE,
-// 			createTime: new Date('2023-02-01'),
-// 			modifyTime: new Date('2023-11-01'),
-// 			children: [
-// 					{
-// 							id: 'file4',
-// 							parentId: 'folder2',
-// 							name: 'presentation.mp4',
-// 							label: 'Product presentation video',
-// 							type: FileType.MP4,
-// 							status: BasicStatus.ENABLE,
-// 							createTime: new Date('2023-07-10'),
-// 							modifyTime: new Date('2023-07-15'),
-// 							size: 1024000,
-// 							content: 'A video about product presentation.'
-// 					},
-// 					{
-// 							id: 'file5',
-// 							parentId: 'folder2',
-// 							name: 'interview.mp3',
-// 							label: 'Interview audio',
-// 							type: FileType.MP3,
-// 							status: BasicStatus.ENABLE,
-// 							createTime: new Date('2023-08-20'),
-// 							modifyTime: new Date('2023-08-20'),
-// 							size: 512000,
-// 							content: 'Audio recording of an interview.'
-// 					}
-// 			]
-// 	},
-// 	{
-// 			id: 'file6',
-// 			parentId: '',
-// 			name: 'notes.docx',
-// 			label: 'Meeting notes',
-// 			type: FileType.DOCX,
-// 			status: BasicStatus.ENABLE,
-// 			createTime: new Date('2023-09-01'),
-// 			modifyTime: new Date('2023-09-10'),
-// 			size: 32000,
-// 			content: 'These are the notes from the meeting.'
-// 	}
-// ];
+// export interface File {
+// 	id: string;
+// 	parentId: string;
+// 	name: string;
+// 	label: string;
+// 	type: FileType;
+// 	status: BasicStatus;
+// 	createTime: Date;
+// 	modifyTime: Date;
+// 	children?: File[];
+// 	size?: number;
+// 	content?: string;
+// }
+
+// export const FILE1 = {
+// 	id: 'file6',
+// 	parentId: '',
+// 	name: 'notes.docx',
+// 	label: 'Meeting notes',
+// 	type: FileType.DOCX,
+// 	status: BasicStatus.ENABLE,
+// 	createTime: new Date('2023-09-01'),
+// 	modifyTime: new Date('2023-09-10'),
+// 	size: 32000,
+// 	content: 'These are the notes from the meeting.'
+// };
+
+// export const FILE_LIST = [FILE1];
+
+export const FILE_LIST = [
+	{
+		id: "folder1",
+		parentId: "",
+		name: "My Documents",
+		label: "Main document folder",
+		type: FileType.FOLDER,
+		status: BasicStatus.ENABLE,
+		createTime: new Date("2023-01-01"),
+		modifyTime: new Date("2023-10-01"),
+		children: [
+			{
+				id: "file1",
+				parentId: "folder1",
+				name: "report.pdf",
+				label: "Quarterly report",
+				type: FileType.PDF,
+				status: BasicStatus.ENABLE,
+				createTime: new Date("2023-03-15"),
+				modifyTime: new Date("2023-03-20"),
+				size: 256000,
+				content: "This is the content of the quarterly report.",
+			},
+			{
+				id: "subfolder1",
+				parentId: "folder1",
+				name: "Images",
+				label: "Image collection",
+				type: FileType.FOLDER,
+				status: BasicStatus.ENABLE,
+				createTime: new Date("2023-04-01"),
+				modifyTime: new Date("2023-09-15"),
+				children: [
+					{
+						id: "file2",
+						parentId: "subfolder1",
+						name: "sunset.jpg",
+						label: "Sunset view",
+						type: FileType.JPEG,
+						status: BasicStatus.ENABLE,
+						createTime: new Date("2023-05-10"),
+						modifyTime: new Date("2023-05-10"),
+						size: 128000,
+						content: "A beautiful sunset image.",
+					},
+					{
+						id: "file3",
+						parentId: "subfolder1",
+						name: "logo.png",
+						label: "Company logo",
+						type: FileType.PNG,
+						status: BasicStatus.ENABLE,
+						createTime: new Date("2023-06-20"),
+						modifyTime: new Date("2023-06-20"),
+						size: 64000,
+						content: "The company logo image.",
+					},
+				],
+			},
+		],
+	},
+	{
+		id: "folder2",
+		parentId: "",
+		name: "Videos",
+		label: "Video storage",
+		type: FileType.FOLDER,
+		status: BasicStatus.ENABLE,
+		createTime: new Date("2023-02-01"),
+		modifyTime: new Date("2023-11-01"),
+		children: [
+			{
+				id: "file4",
+				parentId: "folder2",
+				name: "presentation.mp4",
+				label: "Product presentation video",
+				type: FileType.MP4,
+				status: BasicStatus.ENABLE,
+				createTime: new Date("2023-07-10"),
+				modifyTime: new Date("2023-07-15"),
+				size: 1024000,
+				content: "A video about product presentation.",
+			},
+			{
+				id: "file5",
+				parentId: "folder2",
+				name: "interview.mp3",
+				label: "Interview audio",
+				type: FileType.MP3,
+				status: BasicStatus.ENABLE,
+				createTime: new Date("2023-08-20"),
+				modifyTime: new Date("2023-08-20"),
+				size: 512000,
+				content: "Audio recording of an interview.",
+			},
+		],
+	},
+	{
+		id: "file6",
+		parentId: "",
+		name: "notes.docx",
+		label: "Meeting notes",
+		type: FileType.DOCX,
+		status: BasicStatus.ENABLE,
+		createTime: new Date("2023-09-01"),
+		modifyTime: new Date("2023-09-10"),
+		size: 32000,
+		content: "These are the notes from the meeting.",
+	},
+];
