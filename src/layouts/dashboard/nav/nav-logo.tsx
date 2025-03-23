@@ -1,6 +1,7 @@
 import Logo from "@/components/logo";
 import { useSettings } from "@/store/settingStore";
 import { cn } from "@/utils";
+import { useTranslation } from "react-i18next";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import { ThemeLayout } from "#/enum";
 import { HEADER_HEIGHT } from "../config";
@@ -11,12 +12,15 @@ type Props = {
 };
 export default function NavLogo({ collapsed, onToggle }: Props) {
 	const { themeLayout } = useSettings();
+	const { t } = useTranslation();
 
 	return (
 		<div style={{ height: `${HEADER_HEIGHT}px` }} className="relative flex items-center justify-center py-4">
 			<div className="flex items-center">
 				<Logo />
-				{themeLayout !== ThemeLayout.Mini && <span className="ml-2 text-xl font-bold text-primary">File System</span>}
+				{themeLayout !== ThemeLayout.Mini && (
+					<span className="ml-2 text-xl font-bold text-primary">{t("sys.system.name")}</span>
+				)}
 			</div>
 			<div
 				onClick={onToggle}

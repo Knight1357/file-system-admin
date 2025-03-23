@@ -12,6 +12,7 @@ import FileModal, { type FileModalProps } from "./file-modal";
 
 import type { File } from "#/entity";
 import { BasicStatus, FileType } from "#/enum";
+import { fBytes } from "@/utils/format-number";
 
 const defaultFileValue: File = {
 	id: "",
@@ -46,7 +47,7 @@ export default function FilePage() {
 	});
 	const columns: ColumnsType<File> = [
 		{
-			title: "Icon",
+			title: t("sys.menu.file.icon"),
 			dataIndex: "icon",
 			width: 60,
 			render: (icon: string) => {
@@ -58,14 +59,21 @@ export default function FilePage() {
 			},
 		},
 		{
-			title: "Name",
+			title: t("sys.menu.file.name"),
 			dataIndex: "name",
 			width: 300,
 			render: (_, record) => <div>{t(record.label)}</div>,
 		},
-		{ title: "Size", dataIndex: "size", width: 60 },
 		{
-			title: "Type",
+			title: t("sys.menu.file.size"),
+			align: "center",
+			dataIndex: "size",
+			width: 120,
+			render: (_, record) => <div>{fBytes(record.size)}</div>,
+		},
+		{
+			title: t("sys.menu.file.type"),
+			align: "center",
 			dataIndex: "type",
 			width: 60,
 			render: (_, record) => <Tag color="processing">{FileType[record.type]}</Tag>,
@@ -75,18 +83,18 @@ export default function FilePage() {
 			dataIndex: "",
 		},
 		{
-			title: "Status",
+			title: t("sys.menu.file.status"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
 			render: (status) => (
 				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? "Disable" : "Enable"}
+					{status === BasicStatus.DISABLE ? t("sys.menu.file.statuses.disable") : t("sys.menu.file.statuses.enable")}
 				</Tag>
 			),
 		},
 		{
-			title: "ModifyTime",
+			title: t("sys.menu.file.modifyTime"),
 			dataIndex: "modifyTime",
 			align: "center",
 			width: 120,
@@ -97,7 +105,7 @@ export default function FilePage() {
 			),
 		},
 		{
-			title: "Action",
+			title: t("sys.menu.file.action"),
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -123,12 +131,12 @@ export default function FilePage() {
 
 	const onUpload = () => {
 		// 处理新按钮点击的逻辑
-		console.log('上传文件');
+		console.log("上传文件");
 	};
 
 	const onDownload = () => {
 		// 处理新按钮点击的逻辑
-		console.log('下载文件');
+		console.log("下载文件");
 	};
 
 	const onCreate = (parentId?: string) => {
@@ -151,19 +159,19 @@ export default function FilePage() {
 	};
 	return (
 		<Card
-			title="File List"
+			title={t("sys.menu.file.fileList")}
 			extra={
-						<div>
-							<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onUpload()}>
-									Upload
-							</Button>
-							<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onDownload()}>
-									Download
-							</Button>
-							<Button type="primary" onClick={() => onCreate()}>
-									New
-							</Button>
-					</div>
+				<div>
+					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onUpload()}>
+						{t("sys.menu.file.upload")}
+					</Button>
+					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onDownload()}>
+						{t("sys.menu.file.download")}
+					</Button>
+					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onCreate()}>
+						{t("sys.menu.file.create")}
+					</Button>
+				</div>
 			}
 		>
 			<Table

@@ -58,8 +58,8 @@ export function UploadAvatar({ helperText, defaultAvatar = "", ...other }: Props
 
 	const defaultHelperText = (
 		<Typography.Text type="secondary" style={{ fontSize: 12 }}>
-			Allowed *.jpeg, *.jpg, *.png, *.gif
-			<br /> max size of {fBytes(3145728)}
+			支持 *.jpeg, *.jpg, *.png, *.gif 格式
+			<br /> 最大大小 {fBytes(3145728)}
 		</Typography.Text>
 	);
 	const renderHelpText = <div className="text-center">{helperText || defaultHelperText}</div>;

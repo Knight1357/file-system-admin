@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker";
 import { Badge, Button, Drawer, Space, Tabs, type TabsProps, Tag } from "antd";
 import { type CSSProperties, type ReactNode, useState } from "react";
 
+import { useTranslation } from "react-i18next";
 import CyanBlur from "@/assets/images/background/cyan-blur.png";
 import RedBlur from "@/assets/images/background/red-blur.png";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
@@ -72,6 +73,8 @@ export default function NoticeButton() {
 }
 
 function NoticeTab() {
+	const { t } = useTranslation();
+
 	const tabChildren: ReactNode = (
 		<div className="text-sm">
 			<div className="flex">
@@ -120,7 +123,7 @@ function NoticeTab() {
 					<div>
 						<span className="font-medium">{faker.person.fullName()}</span>
 						<span className="text-xs font-light"> mentioned you in</span>
-						<span className="font-medium">File System</span>
+						<span className="font-medium">{t("sys.system.name")}</span>
 					</div>
 					<span className="text-xs font-light opacity-60">1 days ago</span>
 					<div className="mt-2">

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
+import { useTranslation } from "react-i18next";
 import Logo from "@/assets/images/logo.svg";
 import Router from "@/router/index";
 
@@ -9,11 +10,13 @@ import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 
 function App() {
+	const { t } = useTranslation();
+
 	return (
 		<ThemeProvider adapters={[AntdAdapter]}>
 			<MotionLazy>
 				<Helmet>
-					<title>File System</title>
+					<title>{t("sys.system.name")}</title>
 					<link rel="icon" href={Logo} />
 				</Helmet>
 				<Toast />

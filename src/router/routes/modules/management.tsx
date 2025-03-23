@@ -37,7 +37,7 @@ const management: AppRouteObject = {
 			path: "file",
 			element: <FilePage />,
 			meta: {
-				label: "sys.menu.file",
+				label: "sys.menu.file.index",
 				key: "/management/file",
 			},
 		},
