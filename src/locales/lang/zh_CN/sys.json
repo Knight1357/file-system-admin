@@ -100,8 +100,8 @@
 				"rename": "重命名",
 				"share": "分享",
 				"size": "大小",
-				"status": "状态",
-				"statuses": {
+				"status": {
+					"index": "状态",
 					"disable": "不可用",
 					"enable": "可用"
 				},
@@ -136,7 +136,30 @@
 				"organization": "组织",
 				"permission": "权限",
 				"role": "角色",
-				"user": "用户",
+				"user": {
+					"index": "用户",
+					"list": "用户列表",
+					"action": "操作",
+					"create": "创建",
+					"createTime": "创建时间",
+					"role": "角色",
+					"fileList": "文件列表",
+					"icon": "图标",
+					"id": "ID",
+					"modifyTime": "修改时间",
+					"name": "用户名",
+					"new": "新建",
+					"rename": "重命名",
+					"share": "分享",
+					"size": "大小",
+					"status": {
+						"index": "状态",
+						"disable": "不可用",
+						"enable": "可用"
+					},
+					"type": "类型",
+					"upload": "上传"
+				},
 				"user_detail": "用户详情"
 			},
 			"toast": "Toast",

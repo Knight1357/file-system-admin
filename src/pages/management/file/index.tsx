@@ -122,13 +122,13 @@ export default function FilePage() {
 			dataIndex: "",
 		},
 		{
-			title: t("sys.menu.file.status"),
+			title: t("sys.menu.file.status.index"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
 			render: (status) => (
 				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? t("sys.menu.file.statuses.disable") : t("sys.menu.file.statuses.enable")}
+					{status === BasicStatus.DISABLE ? t("sys.menu.file.status.disable") : t("sys.menu.file.status.enable")}
 				</Tag>
 			),
 		},

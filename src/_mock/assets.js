@@ -186,7 +186,7 @@ const MANAGEMENT_PERMISSION = {
 				{
 					id: "0157880245365433",
 					parentId: "0249937641030250",
-					label: "sys.menu.system.user",
+					label: "sys.menu.system.user.index",
 					name: "User",
 					type: PermissionType.MENU,
 					route: "user",
@@ -555,7 +555,16 @@ const TEST_ROLE = {
 	desc: "test",
 	permission: [DASHBOARD_PERMISSION, COMPONENTS_PERMISSION, FUNCTIONS_PERMISSION],
 };
-export const ROLE_LIST = [ADMIN_ROLE, TEST_ROLE];
+const TEST_ROLE_1 = {
+	id: "9931665660771471",
+	name: "Test1",
+	label: "test1",
+	status: BasicStatus.ENABLE,
+	order: 3,
+	desc: "test",
+	permission: [DASHBOARD_PERMISSION, COMPONENTS_PERMISSION, FUNCTIONS_PERMISSION],
+};
+export const ROLE_LIST = [ADMIN_ROLE, TEST_ROLE, TEST_ROLE_1];
 
 /**
  * User data mock
@@ -582,7 +591,18 @@ export const TEST_USER = {
 	role: TEST_ROLE,
 	permissions: TEST_ROLE.permission,
 };
-export const USER_LIST = [DEFAULT_USER, TEST_USER];
+export const TEST_USER_1 = {
+	id: "efaa20ea-4dc5-47ee-a200-8a899be29491",
+	username: "test1",
+	password: "demo1234",
+	email: faker.internet.email(),
+	avatar: faker.image.avatarGitHub(),
+	createdAt: faker.date.anytime(),
+	updatedAt: faker.date.recent(),
+	role: TEST_ROLE,
+	permissions: TEST_ROLE.permission,
+};
+export const USER_LIST = [DEFAULT_USER, TEST_USER, TEST_USER_1];
 
 // * Hot update, updating user permissions, only effective in the development environment
 if (import.meta.hot) {

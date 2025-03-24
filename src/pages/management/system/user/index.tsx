@@ -5,6 +5,8 @@ import { USER_LIST } from "@/_mock/assets";
 import { IconButton, Iconify } from "@/components/icon";
 import { usePathname, useRouter } from "@/router/hooks";
 
+import { useTranslation } from "react-i18next";
+
 import type { Role, UserInfo } from "#/entity";
 import { BasicStatus } from "#/enum";
 
@@ -13,10 +15,11 @@ const USERS: UserInfo[] = USER_LIST as UserInfo[];
 export default function RolePage() {
 	const { push } = useRouter();
 	const pathname = usePathname();
+	const { t } = useTranslation();
 
 	const columns: ColumnsType<UserInfo> = [
 		{
-			title: "Name",
+			title: t("sys.menu.system.user.name"),
 			dataIndex: "name",
 			width: 300,
 			render: (_, record) => {
@@ -32,25 +35,27 @@ export default function RolePage() {
 			},
 		},
 		{
-			title: "Role",
+			title: t("sys.menu.system.user.role"),
 			dataIndex: "role",
 			align: "center",
 			width: 120,
 			render: (role: Role) => <Tag color="cyan">{role.name}</Tag>,
 		},
 		{
-			title: "Status",
+			title: t("sys.menu.system.user.status.index"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
 			render: (status) => (
 				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? "Disable" : "Enable"}
+					{status === BasicStatus.DISABLE
+						? t("sys.menu.system.user.status.disable")
+						: t("sys.menu.system.user.status.enable")}
 				</Tag>
 			),
 		},
 		{
-			title: "Action",
+			title: t("sys.menu.system.user.action"),
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -78,10 +83,10 @@ export default function RolePage() {
 
 	return (
 		<Card
-			title="User List"
+			title={t("sys.menu.system.user.list")}
 			extra={
 				<Button type="primary" onClick={() => {}}>
-					New
+					{t("sys.menu.system.user.create")}
 				</Button>
 			}
 		>
