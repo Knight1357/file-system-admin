@@ -114,7 +114,7 @@ const MANAGEMENT_PERMISSION = {
 		{
 			id: "2781684678535712",
 			parentId: "0901673425580518",
-			label: "sys.menu.file",
+			label: "sys.menu.file.index",
 			name: "File",
 			type: PermissionType.MENU,
 			route: "file",
@@ -523,14 +523,15 @@ const OTHERS_PERMISSION = [
 	},
 ];
 
+// 控制页面显示
 export const PERMISSION_LIST = [
 	DASHBOARD_PERMISSION,
 	MANAGEMENT_PERMISSION,
-	COMPONENTS_PERMISSION,
-	FUNCTIONS_PERMISSION,
-	MENU_LEVEL_PERMISSION,
-	ERRORS_PERMISSION,
-	...OTHERS_PERMISSION,
+	// COMPONENTS_PERMISSION,
+	// FUNCTIONS_PERMISSION,
+	// MENU_LEVEL_PERMISSION,
+	// ERRORS_PERMISSION,
+	// ...OTHERS_PERMISSION,
 ];
 
 /**
@@ -648,8 +649,8 @@ export const FILE_LIST = [
 		label: "Main document folder",
 		type: FileType.FOLDER,
 		status: BasicStatus.ENABLE,
-		createTime: new Date("2023-01-01"),
-		modifyTime: new Date("2023-10-01"),
+		createTime: new Date("2023-01-01 12:30:45"),
+		modifyTime: new Date("2023-10-01 12:30:45"),
 		children: [
 			{
 				id: "file1",
@@ -658,8 +659,8 @@ export const FILE_LIST = [
 				label: "Quarterly report",
 				type: FileType.PDF,
 				status: BasicStatus.ENABLE,
-				createTime: new Date("2023-03-15"),
-				modifyTime: new Date("2023-03-20"),
+				createTime: new Date("2023-03-15 12:30:45"),
+				modifyTime: new Date("2023-03-20 12:30:45"),
 				size: 256000,
 				content: "This is the content of the quarterly report.",
 			},
@@ -670,8 +671,8 @@ export const FILE_LIST = [
 				label: "Image collection",
 				type: FileType.FOLDER,
 				status: BasicStatus.ENABLE,
-				createTime: new Date("2023-04-01"),
-				modifyTime: new Date("2023-09-15"),
+				createTime: new Date("2023-04-01 12:30:45"),
+				modifyTime: new Date("2023-09-15 12:30:45"),
 				children: [
 					{
 						id: "file2",
@@ -680,8 +681,8 @@ export const FILE_LIST = [
 						label: "Sunset view",
 						type: FileType.JPEG,
 						status: BasicStatus.ENABLE,
-						createTime: new Date("2023-05-10"),
-						modifyTime: new Date("2023-05-10"),
+						createTime: new Date("2023-05-10 12:30:45"),
+						modifyTime: new Date("2023-05-10 12:30:45"),
 						size: 128000,
 						content: "A beautiful sunset image.",
 					},
@@ -692,8 +693,8 @@ export const FILE_LIST = [
 						label: "Company logo",
 						type: FileType.PNG,
 						status: BasicStatus.ENABLE,
-						createTime: new Date("2023-06-20"),
-						modifyTime: new Date("2023-06-20"),
+						createTime: new Date("2023-06-20 12:30:45"),
+						modifyTime: new Date("2023-06-20 12:30:45"),
 						size: 64000,
 						content: "The company logo image.",
 					},
@@ -708,8 +709,8 @@ export const FILE_LIST = [
 		label: "Video storage",
 		type: FileType.FOLDER,
 		status: BasicStatus.ENABLE,
-		createTime: new Date("2023-02-01"),
-		modifyTime: new Date("2023-11-01"),
+		createTime: new Date("2023-02-01 12:30:45"),
+		modifyTime: new Date("2023-11-01 12:30:45"),
 		children: [
 			{
 				id: "file4",
@@ -718,8 +719,8 @@ export const FILE_LIST = [
 				label: "Product presentation video",
 				type: FileType.MP4,
 				status: BasicStatus.ENABLE,
-				createTime: new Date("2023-07-10"),
-				modifyTime: new Date("2023-07-15"),
+				createTime: new Date("2023-07-10 12:30:45"),
+				modifyTime: new Date("2023-07-15 12:30:45"),
 				size: 1024000,
 				content: "A video about product presentation.",
 			},
@@ -730,8 +731,8 @@ export const FILE_LIST = [
 				label: "Interview audio",
 				type: FileType.MP3,
 				status: BasicStatus.ENABLE,
-				createTime: new Date("2023-08-20"),
-				modifyTime: new Date("2023-08-20"),
+				createTime: new Date("2023-08-20 12:30:45"),
+				modifyTime: new Date("2023-08-20 12:30:45"),
 				size: 512000,
 				content: "Audio recording of an interview.",
 			},
@@ -744,9 +745,9 @@ export const FILE_LIST = [
 		label: "Meeting notes",
 		type: FileType.DOCX,
 		status: BasicStatus.ENABLE,
-		createTime: new Date("2023-09-01"),
-		modifyTime: new Date("2023-09-10"),
-		size: 32000,
+		createTime: new Date("2023-09-01 12:30:45"),
+		modifyTime: new Date("2023-09-10 12:30:45"),
+		size: 3145728,
 		content: "These are the notes from the meeting.",
 	},
 ];

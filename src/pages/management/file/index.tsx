@@ -8,11 +8,19 @@ import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
 
+// 引入需要的图标
+import { FaFolder } from'react-icons/fa';
+import { FaFileImage } from'react-icons/fa';
+import { FaFilePdf } from'react-icons/fa';
+import { FaFileWord } from'react-icons/fa';
+import { FaFileVideo } from'react-icons/fa';
+import { FaFileAudio } from'react-icons/fa';
+
 import FileModal, { type FileModalProps } from "./file-modal";
 
+import { fBytes } from "@/utils/format-number";
 import type { File } from "#/entity";
 import { BasicStatus, FileType } from "#/enum";
-import { fBytes } from "@/utils/format-number";
 
 const defaultFileValue: File = {
 	id: "",
@@ -62,7 +70,38 @@ export default function FilePage() {
 			title: t("sys.menu.file.name"),
 			dataIndex: "name",
 			width: 300,
-			render: (_, record) => <div>{t(record.label)}</div>,
+			render: (_, record) => {
+				let icon: JSX.Element | null;
+				switch (record.type) {
+						case FileType.FOLDER:
+								icon = <FaFolder size={24} />;
+								break;
+						case FileType.JPEG:
+						case FileType.PNG:
+								icon = <FaFileImage size={24} />;
+								break;
+						case FileType.PDF:
+								icon = <FaFilePdf size={24} />;
+								break;
+						case FileType.DOCX:
+								icon = <FaFileWord size={24} />;
+								break;
+						case FileType.MP4:
+								icon = <FaFileVideo size={24} />;
+								break;
+						case FileType.MP3:
+								icon = <FaFileAudio size={24} />;
+								break;
+						default:
+								icon = null;
+				}
+				return (
+					<div className="flex items-center">
+						{icon}
+						<div style={{ marginLeft: 8 }}>{t(record.name)}</div>
+					</div>
+				);
+			},
 		},
 		{
 			title: t("sys.menu.file.size"),
@@ -98,11 +137,24 @@ export default function FilePage() {
 			dataIndex: "modifyTime",
 			align: "center",
 			width: 120,
-			render: (status) => (
-				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? "Disable" : "Enable"}
-				</Tag>
-			),
+			render: (_, record) => {
+				const modifyTime = record.modifyTime;
+				if (!modifyTime) return null;
+				const date = new Date(modifyTime);
+				const year = date.getFullYear();
+				const month = String(date.getMonth() + 1).padStart(2, "0");
+				const day = String(date.getDate()).padStart(2, "0");
+				const hours = String(modifyTime.getHours()).padStart(2, '0');
+				const minutes = String(modifyTime.getMinutes()).padStart(2, '0');
+				const seconds = String(modifyTime.getSeconds()).padStart(2, '0');
+				const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+			
+				return (
+					<div>
+						<p>{formattedDateTime}</p>
+					</div>
+				);
+			},
 		},
 		{
 			title: t("sys.menu.file.action"),
