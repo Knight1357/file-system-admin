@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
+import axios from 'axios';
 
 // 引入需要的图标
 import { FaFolder } from'react-icons/fa';
@@ -53,6 +54,7 @@ export default function FilePage() {
 			setFileModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
+	
 	const columns: ColumnsType<File> = [
 		{
 			title: t("sys.menu.file.icon"),
@@ -182,7 +184,7 @@ export default function FilePage() {
 	];
 
 	const onUpload = () => {
-		// 处理新按钮点击的逻辑
+		// 弹出文件选择框，选择文件进行上传
 		console.log("上传文件");
 	};
 

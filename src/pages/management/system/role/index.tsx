@@ -10,6 +10,8 @@ import { RoleModal, type RoleModalProps } from "./role-modal";
 import type { Role } from "#/entity";
 import { BasicStatus } from "#/enum";
 
+import { useTranslation } from "react-i18next";
+
 const ROLES: Role[] = ROLE_LIST as Role[];
 
 const DEFAULE_ROLE_VALUE: Role = {
@@ -20,9 +22,11 @@ const DEFAULE_ROLE_VALUE: Role = {
 	permission: [],
 };
 export default function RolePage() {
+	const { t } = useTranslation();
+
 	const [roleModalPros, setRoleModalProps] = useState<RoleModalProps>({
 		formValue: { ...DEFAULE_ROLE_VALUE },
-		title: "New",
+		title: t("sys.menu.system.role.create"),
 		show: false,
 		onOk: () => {
 			setRoleModalProps((prev) => ({ ...prev, show: false }));
@@ -33,29 +37,31 @@ export default function RolePage() {
 	});
 	const columns: ColumnsType<Role> = [
 		{
-			title: "Name",
+			title: t("sys.menu.system.role.name"),
 			dataIndex: "name",
 			width: 300,
 		},
 		{
-			title: "Label",
+			title: t("sys.menu.system.role.lable"),
 			dataIndex: "label",
 		},
-		{ title: "Order", dataIndex: "order", width: 60 },
+		{ title: t("sys.menu.system.role.order"), dataIndex: "order", width: 60 },
 		{
-			title: "Status",
+			title: t("sys.menu.system.role.status.index"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
 			render: (status) => (
 				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? "Disable" : "Enable"}
+					{status === BasicStatus.DISABLE
+						? t("sys.menu.system.role.status.disable")
+						: t("sys.menu.system.role.status.enable")}
 				</Tag>
 			),
 		},
-		{ title: "Desc", dataIndex: "desc" },
+		{ title: t("sys.menu.system.role.desc"), dataIndex: "desc" },
 		{
-			title: "Action",
+			title: t("sys.menu.system.role.action"),
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -78,7 +84,7 @@ export default function RolePage() {
 		setRoleModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Create New",
+			title: t("sys.menu.system.role.create"),
 			formValue: {
 				...prev.formValue,
 				...DEFAULE_ROLE_VALUE,
@@ -90,17 +96,17 @@ export default function RolePage() {
 		setRoleModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("sys.menu.system.role.edit"),
 			formValue,
 		}));
 	};
 
 	return (
 		<Card
-			title="Role List"
+			title={t("sys.menu.system.role.list")}
 			extra={
 				<Button type="primary" onClick={onCreate}>
-					New
+					{t("sys.menu.system.role.create")}
 				</Button>
 			}
 		>

@@ -51,19 +51,19 @@ export default function PermissionPage() {
 	});
 	const columns: ColumnsType<Permission> = [
 		{
-			title: "Name",
+			title: t("sys.menu.system.permission.name"),
 			dataIndex: "name",
 			width: 300,
 			render: (_, record) => <div>{t(record.label)}</div>,
 		},
 		{
-			title: "Type",
+			title: t("sys.menu.system.permission.type"),
 			dataIndex: "type",
 			width: 60,
 			render: (_, record) => <Tag color="processing">{PermissionType[record.type]}</Tag>,
 		},
 		{
-			title: "Icon",
+			title: t("sys.menu.system.permission.icon"),
 			dataIndex: "icon",
 			width: 60,
 			render: (icon: string) => {
@@ -75,23 +75,25 @@ export default function PermissionPage() {
 			},
 		},
 		{
-			title: "Component",
+			title: t("sys.menu.system.permission.component"),
 			dataIndex: "component",
 		},
 		{
-			title: "Status",
+			title: t("sys.menu.system.permission.status.index"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
 			render: (status) => (
 				<Tag color={status === BasicStatus.DISABLE ? "error" : "success"}>
-					{status === BasicStatus.DISABLE ? "Disable" : "Enable"}
+					{status === BasicStatus.DISABLE
+						? t("sys.menu.system.permission.status.disable")
+						: t("sys.menu.system.permission.status.enable")}
 				</Tag>
 			),
 		},
-		{ title: "Order", dataIndex: "order", width: 60 },
+		{ title: t("sys.menu.system.permission.order"), dataIndex: "order", width: 60 },
 		{
-			title: "Action",
+			title: t("sys.menu.system.permission.action"),
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -135,10 +137,10 @@ export default function PermissionPage() {
 	};
 	return (
 		<Card
-			title="Permission List"
+			title={t("sys.menu.system.permission.list")}
 			extra={
 				<Button type="primary" onClick={() => onCreate()}>
-					New
+					{t("sys.menu.system.permission.new")}
 				</Button>
 			}
 		>

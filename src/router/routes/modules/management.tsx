@@ -83,7 +83,7 @@ const management: AppRouteObject = {
 					path: "permission",
 					element: <PermissioPage />,
 					meta: {
-						label: "sys.menu.system.permission",
+						label: "sys.menu.system.permission.index",
 						key: "/management/system/permission",
 					},
 				},

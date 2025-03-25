@@ -134,8 +134,49 @@
 			"system": {
 				"index": "系统",
 				"organization": "组织",
-				"permission": "权限",
-				"role": "角色",
+				"permission": {
+					"index": "权限",
+					"list": "权限列表",
+					"action": "操作",
+					"component": "组件",
+					"create": "创建",
+					"order": "次序",
+					"icon": "图标",
+					"id": "ID",
+					"name": "权限名",
+					"new": "新建权限",
+					"rename": "重命名",
+					"share": "分享",
+					"status": {
+						"index": "状态",
+						"disable": "不可用",
+						"enable": "可用"
+					},
+					"type": "类型"
+				},
+				"role": {
+					"index": "角色",
+					"list": "角色列表",
+					"action": "操作",
+					"component": "组件",
+					"create": "新建角色",
+					"edit":"编辑角色",
+					"permission": "权限",
+					"order": "次序",
+					"icon": "图标",
+					"id": "ID",
+					"desc":"描述",
+					"lable":"标签",
+					"name": "权限名",
+					"new": "新建权限",
+					"rename": "重命名",
+					"share": "分享",
+					"status": {
+						"index": "状态",
+						"disable": "不可用",
+						"enable": "可用"
+					}
+				},
 				"user": {
 					"index": "用户",
 					"list": "用户列表",

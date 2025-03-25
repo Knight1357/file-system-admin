@@ -168,7 +168,7 @@ const MANAGEMENT_PERMISSION = {
 				{
 					id: "4359580910369984",
 					parentId: "0249937641030250",
-					label: "sys.menu.system.permission",
+					label: "sys.menu.system.permission.index",
 					name: "Permission",
 					type: PermissionType.MENU,
 					route: "permission",
@@ -177,7 +177,7 @@ const MANAGEMENT_PERMISSION = {
 				{
 					id: "1689241785490759",
 					parentId: "0249937641030250",
-					label: "sys.menu.system.role",
+					label: "sys.menu.system.role.index",
 					name: "Role",
 					type: PermissionType.MENU,
 					route: "role",
