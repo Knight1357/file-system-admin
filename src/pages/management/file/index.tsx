@@ -7,15 +7,15 @@ import { useTranslation } from "react-i18next";
 import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
-import axios from 'axios';
+import axios from "axios";
 
 // 引入需要的图标
-import { FaFolder } from'react-icons/fa';
-import { FaFileImage } from'react-icons/fa';
-import { FaFilePdf } from'react-icons/fa';
-import { FaFileWord } from'react-icons/fa';
-import { FaFileVideo } from'react-icons/fa';
-import { FaFileAudio } from'react-icons/fa';
+import { FaFolder } from "react-icons/fa";
+import { FaFileImage } from "react-icons/fa";
+import { FaFilePdf } from "react-icons/fa";
+import { FaFileWord } from "react-icons/fa";
+import { FaFileVideo } from "react-icons/fa";
+import { FaFileAudio } from "react-icons/fa";
 
 import FileModal, { type FileModalProps } from "./file-modal";
 
@@ -54,7 +54,7 @@ export default function FilePage() {
 			setFileModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
-	
+
 	const columns: ColumnsType<File> = [
 		{
 			title: t("sys.menu.file.icon"),
@@ -75,27 +75,27 @@ export default function FilePage() {
 			render: (_, record) => {
 				let icon: JSX.Element | null;
 				switch (record.type) {
-						case FileType.FOLDER:
-								icon = <FaFolder size={24} />;
-								break;
-						case FileType.JPEG:
-						case FileType.PNG:
-								icon = <FaFileImage size={24} />;
-								break;
-						case FileType.PDF:
-								icon = <FaFilePdf size={24} />;
-								break;
-						case FileType.DOCX:
-								icon = <FaFileWord size={24} />;
-								break;
-						case FileType.MP4:
-								icon = <FaFileVideo size={24} />;
-								break;
-						case FileType.MP3:
-								icon = <FaFileAudio size={24} />;
-								break;
-						default:
-								icon = null;
+					case FileType.FOLDER:
+						icon = <FaFolder size={24} />;
+						break;
+					case FileType.JPEG:
+					case FileType.PNG:
+						icon = <FaFileImage size={24} />;
+						break;
+					case FileType.PDF:
+						icon = <FaFilePdf size={24} />;
+						break;
+					case FileType.DOCX:
+						icon = <FaFileWord size={24} />;
+						break;
+					case FileType.MP4:
+						icon = <FaFileVideo size={24} />;
+						break;
+					case FileType.MP3:
+						icon = <FaFileAudio size={24} />;
+						break;
+					default:
+						icon = null;
 				}
 				return (
 					<div className="flex items-center">
@@ -146,11 +146,11 @@ export default function FilePage() {
 				const year = date.getFullYear();
 				const month = String(date.getMonth() + 1).padStart(2, "0");
 				const day = String(date.getDate()).padStart(2, "0");
-				const hours = String(modifyTime.getHours()).padStart(2, '0');
-				const minutes = String(modifyTime.getMinutes()).padStart(2, '0');
-				const seconds = String(modifyTime.getSeconds()).padStart(2, '0');
+				const hours = String(modifyTime.getHours()).padStart(2, "0");
+				const minutes = String(modifyTime.getMinutes()).padStart(2, "0");
+				const seconds = String(modifyTime.getSeconds()).padStart(2, "0");
 				const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-			
+
 				return (
 					<div>
 						<p>{formattedDateTime}</p>
@@ -173,7 +173,7 @@ export default function FilePage() {
 					<IconButton onClick={() => onEdit(record)}>
 						<Iconify icon="solar:pen-bold-duotone" size={18} />
 					</IconButton>
-					<Popconfirm title="Delete the File" okText="Yes" cancelText="No" placement="left">
+					<Popconfirm title={t("sys.menu.file.delete")} okText={t("sys.yes")} cancelText={t("sys.no")} placement="left">
 						<IconButton>
 							<Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
 						</IconButton>
@@ -198,7 +198,7 @@ export default function FilePage() {
 			...prev,
 			show: true,
 			...defaultFileValue,
-			title: "New",
+			title: t("sys.menu.file.new"),
 			formValue: { ...defaultFileValue, parentId: parentId ?? "" },
 		}));
 	};
@@ -207,7 +207,7 @@ export default function FilePage() {
 		setFileModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("sys.menu.file.edit"),
 			formValue,
 		}));
 	};

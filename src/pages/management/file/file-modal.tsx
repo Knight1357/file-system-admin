@@ -1,5 +1,6 @@
 import { AutoComplete, Form, Input, InputNumber, Modal, Radio, TreeSelect } from "antd";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 import { useUserFile } from "@/store/userStore";
 
@@ -26,6 +27,7 @@ export type FileModalProps = {
 };
 
 export default function FileModal({ title, show, formValue, onOk, onCancel }: FileModalProps) {
+	const { t } = useTranslation();
 	const [form] = Form.useForm();
 	const files = useUserFile();
 	const [compOptions, setCompOptions] = useState(PAGE_SELECT_OPTIONS);
@@ -72,12 +74,11 @@ export default function FileModal({ title, show, formValue, onOk, onCancel }: Fi
 	return (
 		<Modal forceRender title={title} open={show} onOk={onOk} onCancel={onCancel}>
 			<Form initialValues={formValue} form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} layout="horizontal">
-
-				<Form.Item<File> label="Name" name="name" required>
+				<Form.Item<File> label={t("sys.menu.file.name")} name="name" required>
 					<Input />
 				</Form.Item>
 
-				<Form.Item<File> label="Parent" name="parentId" required>
+				<Form.Item<File> label={t("sys.menu.file.parent.name")} name="parentId" required>
 					<TreeSelect
 						fieldNames={{
 							label: "name",
@@ -92,10 +93,10 @@ export default function FileModal({ title, show, formValue, onOk, onCancel }: Fi
 					/>
 				</Form.Item>
 
-				<Form.Item<File> label="Status" name="status" required>
+				<Form.Item<File> label={t("sys.menu.file.status.index")} name="status" required>
 					<Radio.Group optionType="button" buttonStyle="solid">
-						<Radio value={BasicStatus.ENABLE}> Enable </Radio>
-						<Radio value={BasicStatus.DISABLE}> Disable </Radio>
+						<Radio value={BasicStatus.ENABLE}> {t("sys.menu.file.status.enable")} </Radio>
+						<Radio value={BasicStatus.DISABLE}> {t("sys.menu.file.status.disable")} </Radio>
 					</Radio.Group>
 				</Form.Item>
 			</Form>

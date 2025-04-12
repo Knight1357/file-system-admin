@@ -96,14 +96,13 @@
 				"index": "文件",
 				"modifyTime": "修改时间",
 				"name": "文件名",
-				"new": "新建",
 				"rename": "重命名",
 				"share": "分享",
 				"size": "大小",
 				"status": {
-					"index": "状态",
 					"disable": "不可用",
-					"enable": "可用"
+					"enable": "可用",
+					"index": "状态"
 				},
 				"type": "类型",
 				"upload": "上传"
@@ -135,68 +134,68 @@
 				"index": "系统",
 				"organization": "组织",
 				"permission": {
-					"index": "权限",
-					"list": "权限列表",
 					"action": "操作",
 					"component": "组件",
 					"create": "创建",
-					"order": "次序",
 					"icon": "图标",
 					"id": "ID",
+					"index": "权限",
+					"list": "权限列表",
 					"name": "权限名",
 					"new": "新建权限",
+					"order": "次序",
 					"rename": "重命名",
 					"share": "分享",
 					"status": {
-						"index": "状态",
 						"disable": "不可用",
-						"enable": "可用"
+						"enable": "可用",
+						"index": "状态"
 					},
 					"type": "类型"
 				},
 				"role": {
-					"index": "角色",
-					"list": "角色列表",
 					"action": "操作",
 					"component": "组件",
 					"create": "新建角色",
-					"edit":"编辑角色",
-					"permission": "权限",
-					"order": "次序",
+					"desc": "描述",
+					"edit": "编辑角色",
 					"icon": "图标",
 					"id": "ID",
-					"desc":"描述",
-					"lable":"标签",
+					"index": "角色",
+					"lable": "标签",
+					"list": "角色列表",
 					"name": "权限名",
 					"new": "新建权限",
+					"order": "次序",
+					"permission": "权限",
 					"rename": "重命名",
 					"share": "分享",
 					"status": {
-						"index": "状态",
 						"disable": "不可用",
-						"enable": "可用"
+						"enable": "可用",
+						"index": "状态"
 					}
 				},
 				"user": {
-					"index": "用户",
-					"list": "用户列表",
 					"action": "操作",
 					"create": "创建",
 					"createTime": "创建时间",
-					"role": "角色",
 					"fileList": "文件列表",
 					"icon": "图标",
 					"id": "ID",
+					"index": "用户",
+					"list": "用户列表",
 					"modifyTime": "修改时间",
 					"name": "用户名",
 					"new": "新建",
 					"rename": "重命名",
+					"role": "角色",
 					"share": "分享",
 					"size": "大小",
 					"status": {
-						"index": "状态",
 						"disable": "不可用",
-						"enable": "可用"
+						"enable": "可用",
+						"index": "状态"
 					},
 					"type": "类型",
 					"upload": "上传"
@@ -223,5 +222,12 @@
 			"refresh": "刷新"
 		}
 	},
-	"sys.system.name": "文件管理系统"
+	"sys.menu.file.delete": "删除文件",
+	"sys.menu.file.edit": "编辑",
+	"sys.menu.file.new": "新建文件夹",
+	"sys.menu.file.parent.name": "父文件夹",
+	"sys.menu.file.status": "状态",
+	"sys.no": "否",
+	"sys.system.name": "文件管理系统",
+	"sys.yes": "是"
 }
