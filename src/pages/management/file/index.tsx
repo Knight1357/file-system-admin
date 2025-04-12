@@ -69,6 +69,7 @@ export default function FilePage() {
 			},
 		},
 		{
+			// 文件名渲染
 			title: t("sys.menu.file.name"),
 			dataIndex: "name",
 			width: 300,
@@ -100,12 +101,13 @@ export default function FilePage() {
 				return (
 					<div className="flex items-center">
 						{icon}
-						<div style={{ marginLeft: 8 }}>{t(record.name)}</div>
+						<div style={{ marginLeft: 8 }}>{record.name}</div>
 					</div>
 				);
 			},
 		},
 		{
+			// 文件大小渲染
 			title: t("sys.menu.file.size"),
 			align: "center",
 			dataIndex: "size",
@@ -113,6 +115,7 @@ export default function FilePage() {
 			render: (_, record) => <div>{fBytes(record.size)}</div>,
 		},
 		{
+			// 文件类型渲染
 			title: t("sys.menu.file.type"),
 			align: "center",
 			dataIndex: "type",
@@ -124,6 +127,7 @@ export default function FilePage() {
 			dataIndex: "",
 		},
 		{
+			// 文件状态渲染
 			title: t("sys.menu.file.status.index"),
 			dataIndex: "status",
 			align: "center",
@@ -135,6 +139,7 @@ export default function FilePage() {
 			),
 		},
 		{
+			// 文件修改时间
 			title: t("sys.menu.file.modifyTime"),
 			dataIndex: "modifyTime",
 			align: "center",
@@ -159,7 +164,8 @@ export default function FilePage() {
 			},
 		},
 		{
-			title: t("sys.menu.file.action"),
+			// 文件操作渲染
+			title: t("sys.menu.file.operation"),
 			key: "operation",
 			align: "center",
 			width: 100,
