@@ -1,7 +1,7 @@
-import { Button, Card, Popconfirm, Tag } from "antd";
+import { Button, Card, Popconfirm, Tag, message } from "antd";
 import Table, { type ColumnsType } from "antd/es/table";
 import { isNil } from "ramda";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { FILE_LIST } from "@/_mock/assets";
@@ -27,27 +27,35 @@ const defaultFileValue: File = {
 	id: "",
 	parentId: "root",
 	name: "",
-	label: "",
-	// 文件或文件夹的类型，使用 FileType 枚举区分
 	type: FileType.FOLDER,
-	// 文件或文件夹的状态，使用 BasicStatus 枚举
 	status: BasicStatus.ENABLE,
-	// 文件或文件夹的创建时间
 	createTime: new Date(),
-	// 文件或文件夹的修改时间
 	modifyTime: new Date(),
 };
 
-const FILE: File[] = FILE_LIST as File[];
-
 export default function FilePage() {
 	const { t } = useTranslation();
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [files, setFiles] = useState<File[]>(FILE_LIST);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
 		formValue: { ...defaultFileValue },
-		title: "New",
+		title: t("sys.menu.file.new"),
 		show: false,
-		onOk: () => {
+		fileStructure: files, // 初始化时提供
+		onOk: (values) => {
+			if (values.id) {
+				setFiles((prev) => prev.map((item) => (item.id === values.id ? { ...values, modifyTime: new Date() } : item)));
+			} else {
+				const newFile = {
+					...values,
+					id: Date.now().toString(),
+					createTime: new Date(),
+					modifyTime: new Date(),
+				};
+				setFiles((prev) => [...prev, newFile]);
+			}
 			setFileModalProps((prev) => ({ ...prev, show: false }));
 		},
 		onCancel: () => {
@@ -190,22 +198,79 @@ export default function FilePage() {
 	];
 
 	const onUpload = () => {
-		// 弹出文件选择框，选择文件进行上传
-		console.log("上传文件");
+		fileInputRef.current?.click();
 	};
 
-	const onDownload = () => {
-		// 处理新按钮点击的逻辑
-		console.log("下载文件");
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0];
+		if (!file) return;
+
+		try {
+			// 模拟上传请求
+			const formData = new FormData();
+			formData.append("file", file);
+
+			// 此处替换为实际API调用
+			// const response = await axios.post("/api/upload", formData);
+
+			// 模拟响应数据
+			const newFile: File = {
+				id: Date.now().toString(),
+				name: file.name,
+				type: FileType[file.type.split("/")[1].toUpperCase() as keyof typeof FileType] || FileType.FILE,
+				size: file.size,
+				parentId: "root",
+				status: BasicStatus.ENABLE,
+				createTime: new Date(),
+				modifyTime: new Date(),
+			};
+
+			setFiles((prev) => [...prev, newFile]);
+			message.success(t("sys.menu.file.uploadSuccess"));
+		} catch (err) {
+			message.error(t("sys.menu.file.uploadFailed"));
+		} finally {
+			if (fileInputRef.current) fileInputRef.current.value = "";
+		}
+	};
+
+	const onDownload = async (file: File | null) => {
+		if (!file) {
+			message.warning(t("sys.menu.file.selectDownload"));
+			return;
+		}
+
+		try {
+			// 模拟下载请求
+			// const response = await axios.get(`/api/download/${file.id}`, {
+			//   responseType: "blob"
+			// });
+
+			// 创建临时链接模拟下载
+			const blob = new Blob([`Mock content for ${file.name}`], { type: "text/plain" });
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = file.name;
+			a.click();
+			window.URL.revokeObjectURL(url);
+
+			message.success(t("sys.menu.file.downloadSuccess"));
+		} catch (err) {
+			message.error(t("sys.menu.file.downloadFailed"));
+		}
 	};
 
 	const onCreate = (parentId?: string) => {
 		setFileModalProps((prev) => ({
 			...prev,
 			show: true,
-			...defaultFileValue,
 			title: t("sys.menu.file.new"),
-			formValue: { ...defaultFileValue, parentId: parentId ?? "" },
+			formValue: {
+				...defaultFileValue,
+				parentId: parentId || "root",
+				type: parentId ? FileType.FILE : FileType.FOLDER,
+			},
 		}));
 	};
 
@@ -217,15 +282,27 @@ export default function FilePage() {
 			formValue,
 		}));
 	};
+
+	const handleDelete = (fileId: string) => {
+		setFiles((prev) => prev.filter((file) => file.id !== fileId));
+		message.success(t("sys.menu.file.deleteSuccess"));
+	};
+
 	return (
 		<Card
 			title={t("sys.menu.file.fileList")}
 			extra={
 				<div>
-					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onUpload()}>
+					<input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
+					<Button type="primary" onClick={onUpload}>
 						{t("sys.menu.file.upload")}
 					</Button>
-					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onDownload()}>
+					<Button
+						type="primary"
+						style={{ marginLeft: 8 }}
+						onClick={() => onDownload(selectedFile)}
+						disabled={!selectedFile}
+					>
 						{t("sys.menu.file.download")}
 					</Button>
 					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onCreate()}>
@@ -240,7 +317,12 @@ export default function FilePage() {
 				scroll={{ x: "max-content" }}
 				pagination={false}
 				columns={columns}
-				dataSource={FILE}
+				dataSource={files}
+				rowSelection={{
+					type: "checkbox",
+					selectedRowKeys: selectedFile ? [selectedFile.id] : [],
+					onChange: (_, selectedRows) => setSelectedFile(selectedRows[0] || null),
+				}}
 			/>
 
 			<FileModal {...fileModalProps} />

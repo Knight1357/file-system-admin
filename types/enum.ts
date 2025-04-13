@@ -65,4 +65,5 @@ export enum FileType {
 	DOCX = 4,
 	MP4 = 5,
 	MP3 = 6,
+	FILE = 7,
 }

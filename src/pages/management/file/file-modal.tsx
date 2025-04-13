@@ -1,102 +1,157 @@
-import { AutoComplete, Form, Input, InputNumber, Modal, Radio, TreeSelect } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { Form, Input, Modal, Radio, TreeSelect, Upload, UploadFile, UploadProps } from "antd";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-import { useUserFile } from "@/store/userStore";
+import { InboxOutlined } from "@ant-design/icons";
 
 import type { File } from "#/entity";
 import { BasicStatus, FileType } from "#/enum";
 
-// Constants
-const ENTRY_PATH = "/src/pages";
-const PAGES = import.meta.glob("/src/pages/**/*.tsx");
-const PAGE_SELECT_OPTIONS = Object.entries(PAGES).map(([path]) => {
-	const pagePath = path.replace(ENTRY_PATH, "");
-	return {
-		label: pagePath,
-		value: pagePath,
-	};
-});
+const { Dragger } = Upload;
 
 export type FileModalProps = {
 	formValue: File;
 	title: string;
 	show: boolean;
-	onOk: VoidFunction;
+	fileStructure: File[];
+	onOk: (values: File) => void;
 	onCancel: VoidFunction;
 };
 
-export default function FileModal({ title, show, formValue, onOk, onCancel }: FileModalProps) {
+export default function FileModal({ title, show, formValue, fileStructure, onOk, onCancel }: FileModalProps) {
 	const { t } = useTranslation();
 	const [form] = Form.useForm();
-	const files = useUserFile();
-	const [compOptions, setCompOptions] = useState(PAGE_SELECT_OPTIONS);
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-	// 使用 useCallback 定义一个递归函数，用于根据父文件 ID 获取父文件名称
-	const getParentNameById = useCallback(
-		(parentId: string, data: File[] | undefined = files) => {
-			let name = "";
-			if (!data || !parentId) return name;
-			for (let i = 0; i < data.length; i += 1) {
-				if (data[i].id === parentId) {
-					name = data[i].name;
-				} else if (data[i].children) {
-					name = getParentNameById(parentId, data[i].children);
-				}
-				if (name) {
-					break;
-				}
-			}
-			return name;
-		},
-		[files],
-	);
-
-	// 根据输入的名称过滤 PAGE_SELECT_OPTIONS，更新 compOptions 状态
-	const updateCompOptions = (name: string) => {
-		if (!name) return;
-		setCompOptions(
-			PAGE_SELECT_OPTIONS.filter((path) => {
-				return path.value.includes(name.toLowerCase());
-			}),
-		);
+	// 生成文件夹树形数据
+	const generateFolderTree = (files: File[]): File[] => {
+		return files
+			.filter((file) => file.type === FileType.FOLDER)
+			.map((folder) => ({
+				...folder,
+				children: generateFolderTree(files.filter((f) => f.parentId === folder.id)),
+			}));
 	};
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+	// 文件上传配置
+	const uploadProps: UploadProps = {
+		name: "file",
+		multiple: false,
+		beforeUpload: () => false, // 阻止自动上传
+		onChange(info) {
+			const file = info.fileList.slice(-1)[0]; // 只保留最后一个文件
+			setFileList([file]);
+			form.setFieldValue("size", file.size);
+		},
+	};
+
 	useEffect(() => {
-		form.setFieldsValue({ ...formValue });
-		if (formValue.parentId) {
-			const parentName = getParentNameById(formValue.parentId);
-			updateCompOptions(parentName);
+		form.setFieldsValue({
+			...formValue,
+			// 当新建文件时自动设置默认值
+			...(formValue.id ? {} : { status: BasicStatus.ENABLE }),
+		});
+		// 重置上传状态
+		if (!show) setFileList([]);
+	}, [formValue, show, form]);
+
+	const handleSubmit = async () => {
+		try {
+			const values = await form.validateFields();
+			const formData = new FormData();
+
+			// 处理文件上传
+			if (values.type === FileType.FILE && fileList.length > 0) {
+				if (fileList[0]?.originFileObj) {
+					formData.append("file", fileList[0].originFileObj as Blob);
+				}
+			}
+
+			// 合并表单数据
+			const fileData: File = {
+				...formValue,
+				...values,
+				modifyTime: new Date(),
+				createTime: formValue.id ? formValue.createTime : new Date(),
+				size: values.type === FileType.FOLDER ? 0 : values.size,
+			};
+
+			onOk(fileData);
+			form.resetFields();
+		} catch (err) {
+			console.error("Form validation failed:", err);
 		}
-	}, [formValue, form, getParentNameById]);
+	};
 
 	return (
-		<Modal forceRender title={title} open={show} onOk={onOk} onCancel={onCancel}>
-			<Form initialValues={formValue} form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} layout="horizontal">
-				<Form.Item<File> label={t("sys.menu.file.name")} name="name" required>
+		<Modal
+			title={title}
+			open={show}
+			onOk={handleSubmit}
+			onCancel={() => {
+				form.resetFields();
+				onCancel();
+			}}
+			destroyOnClose
+			forceRender
+		>
+			<Form form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 16 }} initialValues={{ type: FileType.FILE }}>
+				<Form.Item<File> label={t("sys.menu.file.type")} name="type" rules={[{ required: true }]}>
+					<Radio.Group optionType="button" buttonStyle="solid">
+						<Radio value={FileType.FILE}>{t("sys.menu.file.typeFile")}</Radio>
+						<Radio value={FileType.FOLDER}>{t("sys.menu.file.typeFolder")}</Radio>
+					</Radio.Group>
+				</Form.Item>
+
+				<Form.Item<File>
+					label={t("sys.menu.file.name")}
+					name="name"
+					rules={[{ required: true, message: t("sys.menu.file.nameRequired") }]}
+				>
 					<Input />
 				</Form.Item>
 
-				<Form.Item<File> label={t("sys.menu.file.parent.name")} name="parentId" required>
+				<Form.Item<File> label={t("sys.menu.file.parent")} name="parentId" initialValue="root">
 					<TreeSelect
+						treeData={generateFolderTree(fileStructure)}
 						fieldNames={{
 							label: "name",
 							value: "id",
 							children: "children",
 						}}
-						allowClear
-						treeData={files}
-						onChange={(_value, labelList) => {
-							updateCompOptions(labelList[0] as string);
-						}}
+						dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
 					/>
 				</Form.Item>
 
-				<Form.Item<File> label={t("sys.menu.file.status.index")} name="status" required>
+				<Form.Item noStyle shouldUpdate>
+					{({ getFieldValue }) =>
+						getFieldValue("type") === FileType.FILE ? (
+							<>
+								<Form.Item<File>
+									label={t("sys.menu.file.upload")}
+									name="content"
+									valuePropName="fileList"
+									getValueFromEvent={(e) => e.fileList}
+								>
+									<Dragger {...uploadProps} fileList={fileList}>
+										<p className="ant-upload-drag-icon">
+											<InboxOutlined />
+										</p>
+										<p>{t("sys.menu.file.uploadTip")}</p>
+									</Dragger>
+								</Form.Item>
+
+								<Form.Item<File> label={t("sys.menu.file.size")} name="size" hidden>
+									<Input disabled />
+								</Form.Item>
+							</>
+						) : null
+					}
+				</Form.Item>
+
+				<Form.Item<File> label={t("sys.menu.file.status.index")} name="status" rules={[{ required: true }]}>
 					<Radio.Group optionType="button" buttonStyle="solid">
-						<Radio value={BasicStatus.ENABLE}> {t("sys.menu.file.status.enable")} </Radio>
-						<Radio value={BasicStatus.DISABLE}> {t("sys.menu.file.status.disable")} </Radio>
+						<Radio value={BasicStatus.ENABLE}>{t("sys.menu.file.status.enable")}</Radio>
+						<Radio value={BasicStatus.DISABLE}>{t("sys.menu.file.status.disable")}</Radio>
 					</Radio.Group>
 				</Form.Item>
 			</Form>

@@ -3,6 +3,7 @@ import Table, { type ColumnsType } from "antd/es/table";
 import { useState } from "react";
 
 import { USER_LIST } from "@/_mock/assets";
+import { ROLE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify } from "@/components/icon";
 import { usePathname, useRouter } from "@/router/hooks";
 
@@ -12,6 +13,8 @@ import type { Role, UserInfo } from "#/entity";
 import { BasicStatus } from "#/enum";
 
 import { useTranslation } from "react-i18next";
+import { faker } from "@faker-js/faker";
+// import { v4 as uuidv4 } from 'uuid';
 
 const USERS: UserInfo[] = USER_LIST as UserInfo[];
 
@@ -19,8 +22,10 @@ const DEFAULT_USER_VALUE: UserInfo = {
 	id: "",
 	username: "",
 	email: "",
-	status: BasicStatus.ENABLE,
-	avatar: "",
+	avatar: faker.image.avatarGitHub(),
+	password: "",
+	role: ROLE_LIST[0],
+	permissions: ROLE_LIST[0].permission,
 };
 
 export default function UserPage() {

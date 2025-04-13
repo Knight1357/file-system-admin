@@ -61,7 +61,6 @@ export interface File {
 	parentId: string;
 	// 文件或文件夹的名称
 	name: string;
-	label: string;
 	// 文件或文件夹的类型，使用 FileType 枚举区分
 	type: FileType;
 	// 文件或文件夹的状态，使用 BasicStatus 枚举
