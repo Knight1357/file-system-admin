@@ -10,12 +10,8 @@ import { useUserFile } from "@/store/userStore";
 import axios from "axios";
 
 // 引入需要的图标
-import { FaFolder } from "react-icons/fa";
-import { FaFileImage } from "react-icons/fa";
-import { FaFilePdf } from "react-icons/fa";
-import { FaFileWord } from "react-icons/fa";
-import { FaFileVideo } from "react-icons/fa";
-import { FaFileAudio } from "react-icons/fa";
+import { FaFolder,FaFileImage,FaFilePdf,FaFileWord,FaFileVideo,FaFileAudio,FaFile } from "react-icons/fa";
+
 
 import FileModal, { type FileModalProps } from "./file-modal";
 
@@ -104,7 +100,7 @@ export default function FilePage() {
 						icon = <FaFileAudio size={24} />;
 						break;
 					default:
-						icon = null;
+						icon = <FaFile size={24} />;
 				}
 				return (
 					<div className="flex items-center">

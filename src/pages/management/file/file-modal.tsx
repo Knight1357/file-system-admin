@@ -110,7 +110,7 @@ export default function FileModal({ title, show, formValue, fileStructure, onOk,
 					<Input />
 				</Form.Item>
 
-				<Form.Item<File> label={t("sys.menu.file.parent")} name="parentId" initialValue="root">
+				<Form.Item<File> label={t("sys.menu.file.parent.name")} name="parentId" initialValue="root">
 					<TreeSelect
 						treeData={generateFolderTree(fileStructure)}
 						fieldNames={{
