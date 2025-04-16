@@ -4,7 +4,7 @@ import { isNil } from "ramda";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { FILE_LIST } from "@/_mock/assets";
+import { ROOT_FOLDER,FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
 import axios from "axios";
@@ -21,7 +21,7 @@ import { BasicStatus, FileType } from "#/enum";
 
 const defaultFileValue: File = {
 	id: "",
-	parentId: "root",
+	parentId: "",
 	name: "",
 	type: FileType.FOLDER,
 	status: BasicStatus.ENABLE,
@@ -34,6 +34,8 @@ export default function FilePage() {
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [files, setFiles] = useState<File[]>(FILE_LIST);
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
+	const [currentFolderId, setCurrentFolderId] = useState<string>(""); // 当前所在文件夹
+	const [selectedFileId, setSelectedFileId] = useState<string>(); // 当前选中文件
 
 	const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
 		formValue: { ...defaultFileValue },
@@ -183,8 +185,8 @@ export default function FilePage() {
 					<IconButton onClick={() => onEdit(record)}>
 						<Iconify icon="solar:pen-bold-duotone" size={18} />
 					</IconButton>
-					<Popconfirm title={t("sys.menu.file.delete")} okText={t("sys.yes")} cancelText={t("sys.no")} placement="left">
-						<IconButton>
+					<Popconfirm title={t("sys.menu.file.delete")} okText={t("sys.yes")} cancelText={t("sys.no")} placement="left" onConfirm={() => onDelete(record)}>
+						<IconButton >
 							<Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
 						</IconButton>
 					</Popconfirm>
@@ -279,10 +281,56 @@ export default function FilePage() {
 		}));
 	};
 
-	const handleDelete = (fileId: string) => {
-		setFiles((prev) => prev.filter((file) => file.id !== fileId));
+	const onDelete = (formValue: File) => {
+		setFiles((prevFiles) => {
+			// 使用集合存储所有需要删除的ID（包含子文件）
+			const idsToDelete = new Set<string>();
+			const queue = [formValue.id];
+			
+			// 广度优先搜索收集所有子文件ID
+			while (queue.length > 0) {
+				const currentId = queue.shift()!;
+				idsToDelete.add(currentId);
+	
+				// 查找所有父ID为当前ID的子文件
+				const children = prevFiles
+					.filter((file) => file.parentId === currentId)
+					.map((f) => f.id);
+	
+				// 将子文件ID加入队列继续处理
+				children.forEach((id) => {
+					if (!idsToDelete.has(id)) {
+						queue.push(id);
+						idsToDelete.add(id);
+					}
+				});
+			}
+	
+			// 过滤掉所有需要删除的文件
+			return prevFiles.filter((file) => !idsToDelete.has(file.id));
+		});
+	
+		// 显示成功提示
 		message.success(t("sys.menu.file.deleteSuccess"));
 	};
+
+	// 处理单击选择
+const handleRowClick = (record: File) => {
+  setSelectedFileId(record.id);
+  setSelectedFile(record);
+};
+
+// 处理双击操作
+const handleRowDoubleClick = (record: File) => {
+  if (record.type === FileType.FOLDER) {
+    // 进入文件夹
+    setCurrentFolderId(record.id);
+    // 这里需要根据parentId过滤文件列表，可能需要调整数据源
+  } else {
+    // 下载文件
+    onDownload(record);
+  }
+};
 
 	return (
 		<Card
@@ -290,7 +338,17 @@ export default function FilePage() {
 			extra={
 				<div>
 					<input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
-					<Button type="primary" onClick={onUpload}>
+					<Button 
+						type="primary" 
+						style={{ marginLeft: 8 }}
+						onClick={() => {
+							const currentFolder = files.find(f => f.id === currentFolderId);
+							setCurrentFolderId(currentFolder?.parentId || "root");
+						}}
+					>
+						{t("sys.menu.file.back")}
+					</Button>
+					<Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
 						{t("sys.menu.file.upload")}
 					</Button>
 					<Button
@@ -319,6 +377,14 @@ export default function FilePage() {
 					selectedRowKeys: selectedFile ? [selectedFile.id] : [],
 					onChange: (_, selectedRows) => setSelectedFile(selectedRows[0] || null),
 				}}
+				onRow={(record) => ({
+					onClick: () => handleRowClick(record),
+					onDoubleClick: () => handleRowDoubleClick(record),
+					style: {
+						cursor: 'pointer',
+						background: selectedFileId === record.id ? '#e6f7ff' : 'inherit',
+					}
+				})}
 			/>
 
 			<FileModal {...fileModalProps} />

@@ -661,6 +661,18 @@ if (import.meta.hot) {
 
 // export const FILE_LIST = [FILE1];
 
+export const ROOT_FOLDER = {
+	id: "",
+	parentId: "",
+	name: "root",
+	label: "",
+	type: FileType.FOLDER,
+	status: BasicStatus.ENABLE,
+	createTime: new Date("2023-01-01 12:30:45"),
+	modifyTime: new Date("2023-10-01 12:30:45"),
+	children:[]
+}
+
 export const FILE_LIST = [
 	{
 		id: "folder1",
