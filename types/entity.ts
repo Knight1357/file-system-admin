@@ -72,7 +72,7 @@ export interface File {
 	// 访问该文件或文件夹所需的权限列表
 	// permissions: Permission[];
 	// 如果是文件夹，可能包含的子文件和子文件夹
-	children?: File[];
+	children?: string[];
 	// 如果是文件，文件的大小（单位：字节）
 	size?: number;
 	// 如果是文件，文件的内容（简单用字符串表示，实际可能需根据类型处理）

@@ -4,7 +4,7 @@ import { isNil } from "ramda";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import { ROOT_FOLDER,FILE_LIST } from "@/_mock/assets";
+import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
 import { useUserFile } from "@/store/userStore";
 import axios from "axios";
@@ -30,12 +30,16 @@ const defaultFileValue: File = {
 };
 
 export default function FilePage() {
-	const { t } = useTranslation();
-	const fileInputRef = useRef<HTMLInputElement>(null);
-	const [files, setFiles] = useState<File[]>(FILE_LIST);
-	const [selectedFile, setSelectedFile] = useState<File | null>(null);
-	const [currentFolderId, setCurrentFolderId] = useState<string>(""); // 当前所在文件夹
-	const [selectedFileId, setSelectedFileId] = useState<string>(); // 当前选中文件
+  const { t } = useTranslation();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [files, setFiles] = useState<File[]>(FILE_LIST);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [currentFolderId, setCurrentFolderId] = useState<string>(""); // 当前所在文件夹
+  const [selectedFileId, setSelectedFileId] = useState<string>(); // 当前选中文件
+  const [folderStack, setFolderStack] = useState<string[]>([]); // 文件夹导航栈
+
+  const currentFiles = files.filter(file => file.parentId === currentFolderId);
+
 
 	const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
 		formValue: { ...defaultFileValue },
@@ -177,11 +181,6 @@ export default function FilePage() {
 			width: 100,
 			render: (_, record) => (
 				<div className="flex w-full justify-end text-gray">
-					{record?.type === FileType.FOLDER && (
-						<IconButton onClick={() => onCreate(record.id)}>
-							<Iconify icon="gridicons:add-outline" size={18} />
-						</IconButton>
-					)}
 					<IconButton onClick={() => onEdit(record)}>
 						<Iconify icon="solar:pen-bold-duotone" size={18} />
 					</IconButton>
@@ -194,6 +193,15 @@ export default function FilePage() {
 			),
 		},
 	];
+
+	const handleBack = () => {
+    if (folderStack.length > 0) {
+      const newStack = [...folderStack];
+      const parentId = newStack.pop();
+      setCurrentFolderId(parentId || "");
+      setFolderStack(newStack);
+    }
+  };
 
 	const onUpload = () => {
 		fileInputRef.current?.click();
@@ -259,18 +267,18 @@ export default function FilePage() {
 		}
 	};
 
-	const onCreate = (parentId?: string) => {
-		setFileModalProps((prev) => ({
-			...prev,
-			show: true,
-			title: t("sys.menu.file.new"),
-			formValue: {
-				...defaultFileValue,
-				parentId: parentId || "root",
-				type: parentId ? FileType.FILE : FileType.FOLDER,
-			},
-		}));
-	};
+  const onCreate = (parentId?: string) => {
+    setFileModalProps(prev => ({
+      ...prev,
+      show: true,
+      title: t("sys.menu.file.new"),
+      formValue: {
+        ...defaultFileValue,
+        parentId: parentId ?? currentFolderId,
+        type: FileType.FOLDER,
+      },
+    }));
+  };
 
 	const onEdit = (formValue: File) => {
 		setFileModalProps((prev) => ({
@@ -314,80 +322,87 @@ export default function FilePage() {
 		message.success(t("sys.menu.file.deleteSuccess"));
 	};
 
-	// 处理单击选择
-const handleRowClick = (record: File) => {
-  setSelectedFileId(record.id);
-  setSelectedFile(record);
-};
+		// 处理单击选择
+	const handleRowClick = (record: File) => {
+		setSelectedFileId(record.id);
+		setSelectedFile(record);
+	};
 
-// 处理双击操作
-const handleRowDoubleClick = (record: File) => {
-  if (record.type === FileType.FOLDER) {
-    // 进入文件夹
-    setCurrentFolderId(record.id);
-    // 这里需要根据parentId过滤文件列表，可能需要调整数据源
-  } else {
-    // 下载文件
-    onDownload(record);
-  }
-};
+	// 处理双击操作
+	const handleRowDoubleClick = (record: File) => {
+		if (record.type === FileType.FOLDER) {
+			setFolderStack(prev => [...prev, currentFolderId]);
+			setCurrentFolderId(record.id);
+		} else {
+			onDownload(record);
+		}
+	};
 
-	return (
-		<Card
-			title={t("sys.menu.file.fileList")}
-			extra={
-				<div>
-					<input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
-					<Button 
-						type="primary" 
-						style={{ marginLeft: 8 }}
-						onClick={() => {
-							const currentFolder = files.find(f => f.id === currentFolderId);
-							setCurrentFolderId(currentFolder?.parentId || "root");
-						}}
-					>
-						{t("sys.menu.file.back")}
-					</Button>
-					<Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
-						{t("sys.menu.file.upload")}
-					</Button>
-					<Button
-						type="primary"
-						style={{ marginLeft: 8 }}
-						onClick={() => onDownload(selectedFile)}
-						disabled={!selectedFile}
-					>
-						{t("sys.menu.file.download")}
-					</Button>
-					<Button type="primary" style={{ marginLeft: 8 }} onClick={() => onCreate()}>
-						{t("sys.menu.file.create")}
-					</Button>
-				</div>
-			}
-		>
-			<Table
-				rowKey="id"
-				size="small"
-				scroll={{ x: "max-content" }}
-				pagination={false}
-				columns={columns}
-				dataSource={files}
-				rowSelection={{
-					type: "checkbox",
-					selectedRowKeys: selectedFile ? [selectedFile.id] : [],
-					onChange: (_, selectedRows) => setSelectedFile(selectedRows[0] || null),
-				}}
-				onRow={(record) => ({
-					onClick: () => handleRowClick(record),
-					onDoubleClick: () => handleRowDoubleClick(record),
-					style: {
-						cursor: 'pointer',
-						background: selectedFileId === record.id ? '#e6f7ff' : 'inherit',
-					}
-				})}
-			/>
+	// 修改返回按钮逻辑
+	const getParentFolderId = () => {
+		if (currentFolderId === "") return "";
+		const currentFolder = files.find(f => f.id === currentFolderId);
+		return currentFolder?.parentId || "";
+	};
 
-			<FileModal {...fileModalProps} />
-		</Card>
-	);
+  return (
+    <Card
+      title={t("sys.menu.file.fileList")}
+      extra={
+        <div>
+          <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
+          <Button 
+            type="primary" 
+            style={{ marginLeft: 8 }}
+            onClick={handleBack}
+            disabled={!folderStack.length}
+          >
+            {t("sys.menu.file.back")}
+          </Button>
+          <Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
+            {t("sys.menu.file.upload")}
+          </Button>
+          <Button
+            type="primary"
+            style={{ marginLeft: 8 }}
+            onClick={() => onDownload(selectedFile)}
+            disabled={!selectedFile}
+          >
+            {t("sys.menu.file.download")}
+          </Button>
+          <Button 
+            type="primary" 
+            style={{ marginLeft: 8 }} 
+            onClick={() => onCreate()}
+          >
+            {t("sys.menu.file.create")}
+          </Button>
+        </div>
+      }
+    >
+      <Table
+        rowKey="id"
+        size="small"
+        scroll={{ x: "max-content" }}
+        pagination={false}
+        columns={columns}
+        dataSource={currentFiles}
+        rowSelection={{
+          type: "checkbox",
+          selectedRowKeys: selectedFile ? [selectedFile.id] : [],
+          onChange: (_, selectedRows) => setSelectedFile(selectedRows[0] || null),
+        }}
+        onRow={(record) => ({
+          onClick: () => handleRowClick(record),
+          onDoubleClick: () => handleRowDoubleClick(record),
+          style: {
+            cursor: 'pointer',
+            background: selectedFileId === record.id ? '#e6f7ff' : 'inherit',
+          }
+        })}
+      />
+
+      <FileModal {...fileModalProps} />
+    </Card>
+  );
 }
