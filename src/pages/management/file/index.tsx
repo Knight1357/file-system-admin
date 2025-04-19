@@ -14,19 +14,33 @@ import { FaFolder,FaFileImage,FaFilePdf,FaFileWord,FaFileVideo,FaFileAudio,FaFil
 
 
 import FileModal, { type FileModalProps } from "./file-modal";
+import FolderModal, { type FolderModalProps } from "./folder-modal";
 
 import { fBytes } from "@/utils/format-number";
 import type { File } from "#/entity";
 import { BasicStatus, FileType } from "#/enum";
 
+// 定义默认值
 const defaultFileValue: File = {
-	id: "",
-	parentId: "",
-	name: "",
-	type: FileType.FOLDER,
-	status: BasicStatus.ENABLE,
-	createTime: new Date(),
-	modifyTime: new Date(),
+  id: "",
+  parentId: "",
+  name: "",
+  type: FileType.FILE,
+  status: BasicStatus.ENABLE,
+  createTime: new Date(),
+  modifyTime: new Date(),
+  size: 0,
+};
+
+const defaultFolderValue: File = {
+  id: "",
+  parentId: "",
+  name: "",
+  type: FileType.FOLDER,
+  status: BasicStatus.ENABLE,
+  createTime: new Date(),
+  modifyTime: new Date(),
+  size: 0,
 };
 
 export default function FilePage() {
@@ -41,29 +55,64 @@ export default function FilePage() {
   const currentFiles = files.filter(file => file.parentId === currentFolderId);
 
 
-	const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
-		formValue: { ...defaultFileValue },
-		title: t("sys.menu.file.new"),
-		show: false,
-		fileStructure: files, // 初始化时提供
-		onOk: (values) => {
-			if (values.id) {
-				setFiles((prev) => prev.map((item) => (item.id === values.id ? { ...values, modifyTime: new Date() } : item)));
-			} else {
-				const newFile = {
-					...values,
-					id: Date.now().toString(),
-					createTime: new Date(),
-					modifyTime: new Date(),
-				};
-				setFiles((prev) => [...prev, newFile]);
-			}
-			setFileModalProps((prev) => ({ ...prev, show: false }));
-		},
-		onCancel: () => {
-			setFileModalProps((prev) => ({ ...prev, show: false }));
-		},
-	});
+  // 文件模态框状态
+  const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
+    formValue: { ...defaultFileValue },
+    title: t("sys.menu.file.newFile"),
+    show: false,
+    fileStructure: files,
+    onOk: (values) => handleFileOperation(values),
+    onCancel: () => setFileModalProps(prev => ({ ...prev, show: false })),
+  });
+
+  // 文件夹模态框状态
+  const [folderModalProps, setFolderModalProps] = useState<FolderModalProps>({
+    formValue: { ...defaultFolderValue },
+    title: t("sys.menu.file.newFolder"),
+    show: false,
+    fileStructure: files,
+    onOk: (values) => handleFolderOperation(values),
+    onCancel: () => setFolderModalProps(prev => ({ ...prev, show: false })),
+  });
+
+	// 处理文件操作
+	const handleFileOperation = (values: File) => {
+		if (values.id) {
+			setFiles(prev => prev.map(item => 
+				item.id === values.id ? { ...values, modifyTime: new Date() } : item
+			));
+		} else {
+			setFiles(prev => [...prev, {
+				...values,
+				id: Date.now().toString(),
+				createTime: new Date(),
+				modifyTime: new Date(),
+			}]);
+		}
+
+		// 关闭文件模态框
+    setFileModalProps(prev => ({ ...prev, show: false }));
+	};
+
+	// 处理文件夹操作
+	const handleFolderOperation = (values: File) => {
+		if (values.id) {
+			setFiles(prev => prev.map(item => 
+				item.id === values.id ? { ...values, modifyTime: new Date() } : item
+			));
+		} else {
+			setFiles(prev => [...prev, {
+				...values,
+				id: Date.now().toString(),
+				createTime: new Date(),
+				modifyTime: new Date(),
+				type: FileType.FOLDER,
+				size: 0,
+			}]);
+		}
+		// 关闭文件夹模态框
+    setFolderModalProps(prev => ({ ...prev, show: false }));
+	};
 
 	const columns: ColumnsType<File> = [
 		{
@@ -204,41 +253,31 @@ export default function FilePage() {
   };
 
 	const onUpload = () => {
+		// 触发文件输入点击
 		fileInputRef.current?.click();
 	};
-
+	
 	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
-
-		try {
-			// 模拟上传请求
-			const formData = new FormData();
-			formData.append("file", file);
-
-			// 此处替换为实际API调用
-			// const response = await axios.post("/api/upload", formData);
-
-			// 模拟响应数据
-			const newFile: File = {
-				id: Date.now().toString(),
-				name: file.name,
-				type: FileType[file.type.split("/")[1].toUpperCase() as keyof typeof FileType] || FileType.FILE,
+	
+		// 设置文件模态框，使用选择的文件名作为默认值
+		setFileModalProps(prev => ({
+			...prev,
+			show: true,
+			formValue: {
+				...defaultFileValue,
+				name: file.name, // 使用选择的文件名作为默认值
+				parentId: currentFolderId,
 				size: file.size,
-				parentId: "root",
-				status: BasicStatus.ENABLE,
-				createTime: new Date(),
-				modifyTime: new Date(),
-			};
-
-			setFiles((prev) => [...prev, newFile]);
-			message.success(t("sys.menu.file.uploadSuccess"));
-		} catch (err) {
-			message.error(t("sys.menu.file.uploadFailed"));
-		} finally {
-			if (fileInputRef.current) fileInputRef.current.value = "";
-		}
+				type: FileType[file.type.split("/")[1].toUpperCase() as keyof typeof FileType] || FileType.FILE,
+			},
+		}));
+	
+		// 重置文件输入
+		if (fileInputRef.current) fileInputRef.current.value = "";
 	};
+
 
 	const onDownload = async (file: File | null) => {
 		if (!file) {
@@ -267,27 +306,35 @@ export default function FilePage() {
 		}
 	};
 
-  const onCreate = (parentId?: string) => {
-    setFileModalProps(prev => ({
+  // 修改后的创建函数
+  const onCreateFolder = () => {
+    setFolderModalProps(prev => ({
       ...prev,
       show: true,
-      title: t("sys.menu.file.new"),
       formValue: {
-        ...defaultFileValue,
-        parentId: parentId ?? currentFolderId,
-        type: FileType.FOLDER,
+        ...defaultFolderValue,
+        parentId: currentFolderId,
       },
     }));
   };
 
 	const onEdit = (formValue: File) => {
-		setFileModalProps((prev) => ({
-			...prev,
-			show: true,
-			title: t("sys.menu.file.edit"),
-			formValue,
-		}));
-	};
+    if (formValue.type === FileType.FOLDER) {
+      setFolderModalProps(prev => ({
+        ...prev,
+        show: true,
+        title: t("sys.menu.file.editFolder"),
+        formValue,
+      }));
+    } else {
+      setFileModalProps(prev => ({
+        ...prev,
+        show: true,
+        title: t("sys.menu.file.editFile"),
+        formValue,
+      }));
+    }
+  };
 
 	const onDelete = (formValue: File) => {
 		setFiles((prevFiles) => {
@@ -338,47 +385,43 @@ export default function FilePage() {
 		}
 	};
 
-	// 修改返回按钮逻辑
-	const getParentFolderId = () => {
-		if (currentFolderId === "") return "";
-		const currentFolder = files.find(f => f.id === currentFolderId);
-		return currentFolder?.parentId || "";
-	};
+  // 修改按钮区域
+  const extraButtons = (
+    <div>
+      <input type="file" ref={fileInputRef} hidden onChange={handleFileChange} />
+      <Button 
+        type="primary" 
+        style={{ marginLeft: 8 }}
+        onClick={handleBack}
+        disabled={!folderStack.length}
+      >
+        {t("sys.menu.file.back")}
+      </Button>
+      <Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
+        {t("sys.menu.file.upload")}
+      </Button>
+      <Button
+        type="primary"
+        style={{ marginLeft: 8 }}
+        onClick={() => onDownload(selectedFile)}
+        disabled={!selectedFile}
+      >
+        {t("sys.menu.file.download")}
+      </Button>
+      <Button 
+        type="primary" 
+        style={{ marginLeft: 8 }} 
+        onClick={onCreateFolder}
+      >
+        {t("sys.menu.file.newFolder")}
+      </Button>
+    </div>
+  );
 
   return (
     <Card
       title={t("sys.menu.file.fileList")}
-      extra={
-        <div>
-          <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
-          <Button 
-            type="primary" 
-            style={{ marginLeft: 8 }}
-            onClick={handleBack}
-            disabled={!folderStack.length}
-          >
-            {t("sys.menu.file.back")}
-          </Button>
-          <Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
-            {t("sys.menu.file.upload")}
-          </Button>
-          <Button
-            type="primary"
-            style={{ marginLeft: 8 }}
-            onClick={() => onDownload(selectedFile)}
-            disabled={!selectedFile}
-          >
-            {t("sys.menu.file.download")}
-          </Button>
-          <Button 
-            type="primary" 
-            style={{ marginLeft: 8 }} 
-            onClick={() => onCreate()}
-          >
-            {t("sys.menu.file.create")}
-          </Button>
-        </div>
-      }
+      extra={extraButtons}
     >
       <Table
         rowKey="id"
@@ -402,7 +445,8 @@ export default function FilePage() {
         })}
       />
 
-      <FileModal {...fileModalProps} />
+			<FileModal {...fileModalProps} />
+			<FolderModal {...folderModalProps} />
     </Card>
   );
 }

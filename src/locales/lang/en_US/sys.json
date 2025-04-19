@@ -165,6 +165,7 @@
   "sys.menu.file.downloadSuccess": "Download Successfully",
   "sys.menu.file.edit": "Edit",
   "sys.menu.file.new": "New Folder",
+  "sys.menu.file.newFolder": "New Folder",
   "sys.menu.file.operation": "Operation",
   "sys.menu.file.parent.name": "Parent",
   "sys.menu.file.status": "Status",

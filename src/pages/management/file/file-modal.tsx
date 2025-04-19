@@ -22,16 +22,6 @@ export default function FileModal({ title, show, formValue, fileStructure, onOk,
 	const [form] = Form.useForm();
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
-	// 生成文件夹树形数据
-	const generateFolderTree = (files: File[]): File[] => {
-		return files
-			.filter((file) => file.type === FileType.FOLDER)
-			.map((folder) => ({
-				...folder,
-				children: generateFolderTree(files.filter((f) => f.parentId === folder.id)),
-			}));
-	};
-
 	// 文件上传配置
 	const uploadProps: UploadProps = {
 		name: "file",
@@ -95,12 +85,6 @@ export default function FileModal({ title, show, formValue, fileStructure, onOk,
 			forceRender
 		>
 			<Form form={form} labelCol={{ span: 6 }} wrapperCol={{ span: 16 }} initialValues={{ type: FileType.FILE }}>
-				<Form.Item<File> label={t("sys.menu.file.type")} name="type" rules={[{ required: true }]}>
-					<Radio.Group optionType="button" buttonStyle="solid">
-						<Radio value={FileType.FILE}>{t("sys.menu.file.typeFile")}</Radio>
-						<Radio value={FileType.FOLDER}>{t("sys.menu.file.typeFolder")}</Radio>
-					</Radio.Group>
-				</Form.Item>
 
 				<Form.Item<File>
 					label={t("sys.menu.file.name")}
@@ -110,35 +94,10 @@ export default function FileModal({ title, show, formValue, fileStructure, onOk,
 					<Input />
 				</Form.Item>
 
-				<Form.Item<File> label={t("sys.menu.file.parent.name")} name="parentId" initialValue="root">
-					<TreeSelect
-						treeData={generateFolderTree(fileStructure)}
-						fieldNames={{
-							label: "name",
-							value: "id",
-							children: "children",
-						}}
-						dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
-					/>
-				</Form.Item>
-
 				<Form.Item noStyle shouldUpdate>
 					{({ getFieldValue }) =>
 						getFieldValue("type") === FileType.FILE ? (
 							<>
-								<Form.Item<File>
-									label={t("sys.menu.file.upload")}
-									name="content"
-									valuePropName="fileList"
-									getValueFromEvent={(e) => e.fileList}
-								>
-									<Dragger {...uploadProps} fileList={fileList}>
-										<p className="ant-upload-drag-icon">
-											<InboxOutlined />
-										</p>
-										<p>{t("sys.menu.file.uploadTip")}</p>
-									</Dragger>
-								</Form.Item>
 
 								<Form.Item<File> label={t("sys.menu.file.size")} name="size" hidden>
 									<Input disabled />
