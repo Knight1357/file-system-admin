@@ -164,6 +164,8 @@
   "sys.menu.file.downloadFailed": "Download Failed",
   "sys.menu.file.downloadSuccess": "Download Successfully",
   "sys.menu.file.edit": "Edit",
+  "sys.menu.file.editFile": "Edit File",
+  "sys.menu.file.editFolder": "Edit Folder",
   "sys.menu.file.new": "New Folder",
   "sys.menu.file.newFolder": "New Folder",
   "sys.menu.file.operation": "Operation",

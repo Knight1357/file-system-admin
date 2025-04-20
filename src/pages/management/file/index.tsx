@@ -6,8 +6,6 @@ import { useTranslation } from "react-i18next";
 
 import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
-import { useUserFile } from "@/store/userStore";
-import axios from "axios";
 
 // 引入需要的图标
 import { FaFolder,FaFileImage,FaFilePdf,FaFileWord,FaFileVideo,FaFileAudio,FaFile } from "react-icons/fa";

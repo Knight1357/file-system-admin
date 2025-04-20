@@ -228,6 +228,8 @@
   "sys.menu.file.downloadFailed": "下载失败",
   "sys.menu.file.downloadSuccess": "下载成功",
   "sys.menu.file.edit": "编辑",
+  "sys.menu.file.editFile": "修改文件信息",
+  "sys.menu.file.editFolder": "修改文件夹信息",
   "sys.menu.file.fileList": "",
   "sys.menu.file.new": "新建文件夹",
   "sys.menu.file.newFolder": "新建文件夹",
