@@ -56,7 +56,7 @@ export default function FilePage() {
   // 文件模态框状态
   const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
     formValue: { ...defaultFileValue },
-    title: t("sys.menu.file.newFile"),
+    title: t("sys.menu.file.uploadFile"),
     show: false,
     fileStructure: files,
     onOk: (values) => handleFileOperation(values),

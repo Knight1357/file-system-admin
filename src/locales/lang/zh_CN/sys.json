@@ -238,6 +238,7 @@
   "sys.menu.file.status": "状态",
   "sys.menu.file.typeFolder": "文件夹",
   "sys.menu.file.uploadFailed": "上传失败",
+  "sys.menu.file.uploadFile": "上传文件",
   "sys.menu.file.uploadSuccess": "上传成功",
   "sys.menu.system.user.avatar": "头像地址",
   "sys.menu.system.user.deleteConfirm": "确定删除用户吗？",
