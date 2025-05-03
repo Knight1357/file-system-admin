@@ -13,7 +13,7 @@ function UserAccount() {
 			label: (
 				<div className="flex items-center">
 					<Iconify icon="solar:user-id-bold" size={24} className="mr-2" />
-					<span>General</span>
+					<span>基本信息</span>
 				</div>
 			),
 			children: <GeneralTab />,
@@ -27,7 +27,7 @@ function UserAccount() {
 						size={24}
 						className="mr-2"
 					/>
-					<span>Notifications</span>
+					<span>通知设置</span>
 				</div>
 			),
 			children: <NotificationsTab />,
@@ -41,7 +41,7 @@ function UserAccount() {
 						size={24}
 						className="mr-2"
 					/>
-					<span>Security</span>
+					<span>账号安全</span>
 				</div>
 			),
 			children: <SecurityTab />,

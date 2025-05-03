@@ -26,16 +26,16 @@ export default function SecurityTab() {
 				labelCol={{ span: 8 }}
 				className="w-full"
 			>
-				<Form.Item<FieldType> label="Old Password" name="oldPassword">
+				<Form.Item<FieldType> label="旧密码" name="oldPassword">
 					<Input.Password />
 				</Form.Item>
 
-				<Form.Item<FieldType> label="New Password" name="newPassword">
+				<Form.Item<FieldType> label="新密码" name="newPassword">
 					<Input.Password />
 				</Form.Item>
 
 				<Form.Item<FieldType>
-					label="Confirm New Password"
+					label="确认密码"
 					name="confirmPassword"
 				>
 					<Input.Password />
@@ -43,7 +43,7 @@ export default function SecurityTab() {
 			</Form>
 			<div className="flex w-full justify-end">
 				<Button type="primary" onClick={handleClick}>
-					Save Changes
+					保存变更
 				</Button>
 			</div>
 		</Card>

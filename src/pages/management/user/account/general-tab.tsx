@@ -27,7 +27,7 @@ export default function GeneralTab() {
 		about: faker.lorem.paragraphs(),
 	};
 	const handleClick = () => {
-		toast.success("Update success!");
+		toast.success("更新成功!");
 	};
 	return (
 		<Row gutter={[16, 16]}>
@@ -36,12 +36,12 @@ export default function GeneralTab() {
 					<UploadAvatar defaultAvatar={avatar} />
 
 					<Space className="py-6">
-						<div>Public Profile</div>
+						<div>公开信息</div>
 						<Switch size="small" />
 					</Space>
 
 					<Button type="primary" danger>
-						Delete User
+						删除用户
 					</Button>
 				</Card>
 			</Col>
@@ -55,12 +55,12 @@ export default function GeneralTab() {
 					>
 						<Row gutter={16}>
 							<Col span={12}>
-								<Form.Item<FieldType> label="Username" name="name">
+								<Form.Item<FieldType> label="用户名" name="name">
 									<Input />
 								</Form.Item>
 							</Col>
 							<Col span={12}>
-								<Form.Item<FieldType> label="Email" name="email">
+								<Form.Item<FieldType> label="邮箱" name="email">
 									<Input />
 								</Form.Item>
 							</Col>
@@ -68,12 +68,12 @@ export default function GeneralTab() {
 
 						<Row gutter={16}>
 							<Col span={12}>
-								<Form.Item<FieldType> label="Phone" name="phone">
+								<Form.Item<FieldType> label="电话号码" name="phone">
 									<Input />
 								</Form.Item>
 							</Col>
 							<Col span={12}>
-								<Form.Item<FieldType> label="Address" name="address">
+								<Form.Item<FieldType> label="地址" name="address">
 									<Input />
 								</Form.Item>
 							</Col>
@@ -81,24 +81,24 @@ export default function GeneralTab() {
 
 						<Row gutter={16}>
 							<Col span={12}>
-								<Form.Item<FieldType> label="City" name="city">
+								<Form.Item<FieldType> label="城市" name="city">
 									<Input />
 								</Form.Item>
 							</Col>
 							<Col span={12}>
-								<Form.Item<FieldType> label="Code" name="code">
+								<Form.Item<FieldType> label="邮编" name="code">
 									<Input />
 								</Form.Item>
 							</Col>
 						</Row>
 
-						<Form.Item<FieldType> label="About" name="about">
+						<Form.Item<FieldType> label="个人简介" name="about">
 							<Input.TextArea />
 						</Form.Item>
 
 						<div className="flex w-full justify-end">
 							<Button type="primary" onClick={handleClick}>
-								Save Changes
+								保存变更
 							</Button>
 						</div>
 					</Form>
