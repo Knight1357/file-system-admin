@@ -107,7 +107,7 @@ export default function PermissionPage() {
 					<IconButton onClick={() => onEdit(record)}>
 						<Iconify icon="solar:pen-bold-duotone" size={18} />
 					</IconButton>
-					<Popconfirm title="删除权限" okText="删除" cancelText="取消" placement="left">
+					<Popconfirm title="删除权限" onConfirm={() => handleDelete(record.id)} okText="删除" cancelText="取消" placement="left">
 						<IconButton>
 							<Iconify icon="mingcute:delete-2-fill" size={18} className="text-error" />
 						</IconButton>
@@ -135,6 +135,11 @@ export default function PermissionPage() {
 			formValue,
 		}));
 	};
+
+	const handleDelete = (id: string) => {
+
+	};
+
 	return (
 		<Card
 			title={t("sys.menu.system.permission.list")}
