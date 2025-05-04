@@ -23,24 +23,24 @@ function UserProfile() {
 	const tabs = [
 		{
 			icon: <Iconify icon="solar:user-id-bold" size={24} className="mr-2" />,
-			title: "Profile",
+			title: "用户信息",
 			content: <ProfileTab />,
 		},
-		{
-			icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
-			title: "Teams",
-			content: <TeamsTab />,
-		},
-		{
-			icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
-			title: "Projects",
-			content: <ProjectsTab />,
-		},
-		{
-			icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
-			title: "Connections",
-			content: <ConnectionsTab />,
-		},
+		// {
+		// 	icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
+		// 	title: "团队",
+		// 	content: <TeamsTab />,
+		// },
+		// {
+		// 	icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
+		// 	title: "Projects",
+		// 	content: <ProjectsTab />,
+		// },
+		// {
+		// 	icon: <Iconify icon="mingcute:profile-fill" size={24} className="mr-2" />,
+		// 	title: "Connections",
+		// 	content: <ConnectionsTab />,
+		// },
 	];
 
 	return (
