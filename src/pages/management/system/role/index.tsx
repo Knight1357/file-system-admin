@@ -24,26 +24,28 @@ export default function RolePage() {
   const { t } = useTranslation();
   const [roles, setRoles] = useState<Role[]>(ROLE_LIST as Role[]);
 
+  const handleOk = (values: Role) => {
+    setRoles(prev => {
+      if (values.id) {
+        return prev.map(role =>
+          role.id === values.id ? values : role
+        );
+      }
+      // 自动生成一个新 ID（可根据实际情况生成）
+      return [...prev, { ...values, id: Date.now().toString() }];
+    });
+    setRoleModalProps(prev => ({ ...prev, show: false }));
+  };
+  
   const [roleModalPros, setRoleModalProps] = useState<RoleModalProps>({
-		formValue: { ...DEFAULT_ROLE_VALUE },
-		title: t("sys.menu.system.role.create"),
-		show: false,
-		onOk: (values) => {
-			setRoles(prev => {
-				if (values.id) {
-					return prev.map(role =>
-						role.id === values.id ? values : role
-					);
-				}
-				// 自动生成一个新 ID（可根据实际情况生成）
-				return [...prev, { ...values, id: Date.now().toString() }];
-			});
-			setRoleModalProps(prev => ({ ...prev, show: false }));
-		},
-		onCancel: () => {
-			setRoleModalProps(prev => ({ ...prev, show: false }));
-		},
-	});
+    formValue: { ...DEFAULT_ROLE_VALUE },
+    title: t("sys.menu.system.role.create"),
+    show: false,
+    onOk: handleOk,
+    onCancel: () => {
+      setRoleModalProps(prev => ({ ...prev, show: false }));
+    },
+  });
 
   const columns: ColumnsType<Role> = [
     {
@@ -97,25 +99,22 @@ export default function RolePage() {
   ];
 
   const onCreate = () => {
-    setRoleModalProps({
+    setRoleModalProps(prev => ({
+      ...prev,
       show: true,
       title: t("sys.menu.system.role.create"),
       formValue: { ...DEFAULT_ROLE_VALUE },
-      onOk: roleModalPros.onOk,
-      onCancel: roleModalPros.onCancel,
-    });
+    }));
   };
-
+  
   const onEdit = (formValue: Role) => {
-		setRoleModalProps(prev => ({
-			...prev,
-			show: true,
-			title: t("sys.menu.system.role.edit"),
-			formValue: { ...formValue }, // 确保包含 id
-		}));
-	};
-
-
+    setRoleModalProps(prev => ({
+      ...prev,
+      show: true,
+      title: t("sys.menu.system.role.edit"),
+      formValue: { ...formValue },
+    }));
+  };
 
 
   const handleDelete = (roleId: string) => {
