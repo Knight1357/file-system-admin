@@ -42,10 +42,35 @@ def download_file(object_name):
     except Exception as e:
         print(f"发生错误: {e}")
 
+def test_list_files():
+    try:
+        # 发送 GET 请求到 /list 端点
+        params = {'bucket': DEFAULT_BUCKET}
+        response = requests.get(f"{BASE_URL}/list", params=params)
+
+        # 检查响应状态码
+        if response.status_code == 200:
+            result = response.json()
+            print("列出文件成功:")
+            print(result)
+        elif response.status_code == 404:
+            result = response.json()
+            print("存储桶不存在:")
+            print(result)
+        else:
+            result = response.json()
+            print("列出文件失败:")
+            print(result)
+    except Exception as e:
+        print(f"发生错误: {e}")
+        
+
 if __name__ == "__main__":
-    if not os.path.exists(FILE_PATH):
-        print(f"文件 {FILE_PATH} 不存在，请检查文件路径。")
-    else:
-        object_name = upload_file()
-        if object_name:
-            download_file(object_name)
+    test_list_files()
+  
+    # if not os.path.exists(FILE_PATH):
+    #     print(f"文件 {FILE_PATH} 不存在，请检查文件路径。")
+    # else:
+    #     object_name = upload_file()
+    #     if object_name:
+    #         download_file(object_name)

@@ -1,11 +1,11 @@
 安装依赖：
 
 ```bash
-pip install fastapi uvicorn minio
+
 ```
 
-运行服务器：
+运行客户端：
 
 ```bash
-uvicorn server.main:app --reload --port 3004
+pnpm dev
 ```

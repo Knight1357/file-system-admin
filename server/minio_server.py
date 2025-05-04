@@ -96,7 +96,7 @@ def download_file():
 @app.route('/list', methods=['GET'])
 def list_files():
     """
-    列出存储桶中的文件
+    列出存储桶中的文件，包含文件名、大小和修改时间
     """
     bucket_name = request.args.get('bucket', DEFAULT_BUCKET)
     
@@ -105,7 +105,15 @@ def list_files():
             return jsonify({"error": "Bucket does not exist"}), 404
         
         objects = minio_client.list_objects(bucket_name)
-        file_list = [obj.object_name for obj in objects]
+
+        file_list = []
+        for obj in objects:
+            file_info = {
+                "name": obj.object_name,
+                "size": obj.size,
+                "last_modified": obj.last_modified.isoformat() if obj.last_modified else None
+            }
+            file_list.append(file_info)
         
         return jsonify({
             "bucket": bucket_name,
@@ -116,6 +124,7 @@ def list_files():
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
