@@ -146,7 +146,7 @@ export default function SettingButton() {
 			</div>
 			<Drawer
 				placement="right"
-				title="Settings"
+				title="设置"
 				onClose={() => setDrawerOpen(false)}
 				open={drawerOpen}
 				closable={false}
@@ -185,7 +185,7 @@ export default function SettingButton() {
 				<div className="flex flex-col gap-6 p-6">
 					{/* theme mode */}
 					<div>
-						<div className="mb-3 text-base font-semibold text-text-secondary">Mode</div>
+						<div className="mb-3 text-base font-semibold text-text-secondary">模式</div>
 						<div className="flex flex-row gap-4">
 							<Card
 								onClick={() => setThemeMode(ThemeMode.Light)}
@@ -212,7 +212,7 @@ export default function SettingButton() {
 
 					{/* theme layout */}
 					<div>
-						<div className="mb-3 text-base font-semibold text-text-secondary">Layout</div>
+						<div className="mb-3 text-base font-semibold text-text-secondary">布局</div>
 						<div className="grid grid-cols-3 gap-4">
 							<Card
 								onClick={() => setThemeLayout(ThemeLayout.Vertical)}
@@ -342,7 +342,7 @@ export default function SettingButton() {
 					{/* theme stretch */}
 					<div>
 						<div className="mb-3 text-base font-semibold text-text-secondary">
-							<span className="mr-2">Stretch</span>
+							<span className="mr-2">伸长</span>
 							<Tooltip title="Only available at large resolutions > 1600px (xl)">
 								<QuestionCircleOutlined />
 							</Tooltip>
@@ -390,7 +390,7 @@ export default function SettingButton() {
 
 					{/* theme presets */}
 					<div>
-						<div className="mb-3 text-base font-semibold text-text-secondary">Presets</div>
+						<div className="mb-3 text-base font-semibold text-text-secondary">主题色</div>
 						<div className="grid grid-cols-3 gap-x-4 gap-y-3">
 							{Object.entries(presetsColors).map(([preset, color]) => (
 								<Card
@@ -415,9 +415,9 @@ export default function SettingButton() {
 
 					{/* font */}
 					<div>
-						<div className="mb-3 text-base font-semibold text-text-secondary">Font </div>
+						<div className="mb-3 text-base font-semibold text-text-secondary">字体设置 </div>
 
-						<div className="my-3 text-sm font-semibold text-text-disabled">Family</div>
+						<div className="my-3 text-sm font-semibold text-text-disabled">字体</div>
 						<div className="flex flex-row gap-3">
 							{Object.entries(FontFamilyPreset).map(([font, family]) => (
 								<Card
@@ -446,24 +446,24 @@ export default function SettingButton() {
 							))}
 						</div>
 
-						<div className="my-3 text-sm font-semibold text-text-disabled">Size</div>
+						<div className="my-3 text-sm font-semibold text-text-disabled">大小</div>
 						<Slider min={12} max={20} defaultValue={fontSize} onChange={setFontSize} />
 					</div>
 
 					{/* Page config */}
 					<div>
-						<div className="mb-3 text-base font-semibold text-text-secondary">Page</div>
+						<div className="mb-3 text-base font-semibold text-text-secondary">页面设置</div>
 						<div className="flex flex-col gap-2">
 							<div className="flex items-center justify-between text-sm text-text-disabled">
-								<div>BreadCrumb</div>
+								<div>面包屑导航栏</div>
 								<Switch size="small" checked={breadCrumb} onChange={(checked) => setBreadCrumn(checked)} />
 							</div>
 							<div className="flex items-center justify-between text-sm text-text-disabled">
-								<div>Multi Tab</div>
+								<div>多表头导航栏</div>
 								<Switch size="small" checked={multiTab} onChange={(checked) => setMultiTab(checked)} />
 							</div>
 							<div className="flex items-center justify-between text-sm text-text-disabled">
-								<div>Dark Sidebar</div>
+								<div>黑色侧边栏</div>
 								<Switch size="small" checked={darkSidebar} onChange={(checked) => setDarkSidebar(checked)} />
 							</div>
 						</div>

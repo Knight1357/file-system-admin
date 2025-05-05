@@ -196,6 +196,7 @@ export default function FilePage() {
     onRename: onRename,
     onCreateFolder: onCreateFolder,
   });
+  
   // 处理文件上传
   const handleFileOperation = async (values: File) => {
     if (fileInputRef.current?.files?.length) {

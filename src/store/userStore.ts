@@ -71,7 +71,7 @@ export const useSignIn = () => {
 			setUserToken({ accessToken, refreshToken });
 			setUserInfo(user);
 			navigatge(HOMEPAGE, { replace: true });
-			toast.success("Sign in success!");
+			toast.success("登陆成功!");
 		} catch (err) {
 			toast.error(err.message, {
 				position: "top-center",
