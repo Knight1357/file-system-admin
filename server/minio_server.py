@@ -21,6 +21,32 @@ minio_client = Minio(
 # 默认存储桶名称
 DEFAULT_BUCKET = "test"
 
+from gmssl.sm4 import CryptSM4, SM4_ENCRYPT, SM4_DECRYPT
+from gmssl.sm3 import sm3_hash
+
+class EncryptionService:
+    def __init__(self, key: bytes):
+        self.key = key
+        self.crypt_sm4 = CryptSM4()
+
+    def encrypt(self, plaintext: bytes) -> bytes:
+        """SM4 加密"""
+        self.crypt_sm4.set_key(self.key, SM4_ENCRYPT)
+        return self.crypt_sm4.crypt_ecb(plaintext)
+
+    def decrypt(self, ciphertext: bytes) -> bytes:
+        """SM4 解密"""
+        self.crypt_sm4.set_key(self.key, SM4_DECRYPT)
+        return self.crypt_sm4.crypt_ecb(ciphertext)
+
+    @staticmethod
+    def hash_data(data: bytes) -> str:
+        """SM3 哈希"""
+        return sm3_hash(list(data))
+
+# 初始化加密服务，使用一个固定的密钥（实际应用中应该安全地管理密钥）
+encryption_service = EncryptionService(key=b"0123456789abcdef")
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -37,17 +63,21 @@ def upload_file():
         if not minio_client.bucket_exists(bucket_name):
             minio_client.make_bucket(bucket_name)
         
+        # 读取文件内容并加密
         file_data = file.read()
+        encrypted_data = encryption_service.encrypt(file_data)
+        
+        # 上传加密后的文件
         minio_client.put_object(
             bucket_name,
             object_name,
-            io.BytesIO(file_data),
-            length=len(file_data),
+            io.BytesIO(encrypted_data),
+            length=len(encrypted_data),
             content_type=file.content_type
         )
         
         return jsonify({
-            "message": "File uploaded successfully",
+            "message": "File uploaded and encrypted successfully",
             "object": object_name
         }), 200
     except Exception as e:
@@ -56,7 +86,7 @@ def upload_file():
 @app.route('/download', methods=['GET'])
 def download_file():
     """
-    从MinIO下载文件
+    从MinIO下载文件并解密
     """
     bucket_name = request.args.get('bucket', DEFAULT_BUCKET)
     object_name = request.args.get('object_name')
@@ -65,15 +95,18 @@ def download_file():
         return jsonify({"error": "object_name parameter is required"}), 400
     
     try:
-        # 获取文件数据
+        # 获取加密的文件数据
         response = minio_client.get_object(bucket_name, object_name)
-        file_data = response.read()
+        encrypted_data = response.read()
+        
+        # 解密文件数据
+        decrypted_data = encryption_service.decrypt(encrypted_data)
         
         # 创建文件流
-        file_stream = io.BytesIO(file_data)
+        file_stream = io.BytesIO(decrypted_data)
         file_stream.seek(0)
         
-        # 发送文件
+        # 发送解密后的文件
         return send_file(
             file_stream,
             as_attachment=True,
