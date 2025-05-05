@@ -2,7 +2,7 @@
 import { Button, Card, Popconfirm, Tag, message } from "antd";
 import Table, { type ColumnsType } from "antd/es/table";
 import { ReloadOutlined } from '@ant-design/icons';
-import { isNil } from "ramda";
+import { isNil, values } from "ramda";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -109,6 +109,72 @@ export default function FilePage() {
     fetchFiles(currentFolderId);
   }, [currentFolderId, t]);
 
+    
+  // 重命名文件或文件夹
+  const onRename = async (formValue: File, newName: string) => {
+    if (!formValue) {
+      message.warning(t("sys.menu.file.selectRename"));
+      return;
+    }
+
+    try {
+      // 构建完整的对象路径
+      const sourcePath = currentFolderId ? `${currentFolderId}${formValue.name}` : formValue.name;
+      const targetPath = currentFolderId ? `${currentFolderId}${newName}` : newName;
+
+      const params = new URLSearchParams({
+        bucket: DEFAULT_BUCKET,
+        source_name: sourcePath,
+        target_name: targetPath
+      });
+
+      const response = await fetch(`${MINIO_API_URL}/rename`, {
+        method: 'POST',
+        body: params
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Rename failed");
+      }
+
+      message.success(t("sys.menu.file.renameSuccess"));
+      fetchFiles(currentFolderId); // 刷新当前目录
+    } catch (error) {
+      console.error('Rename error:', error);
+      message.error(t("sys.menu.file.renameFailed"));
+    }
+  };
+
+  // 创建文件夹
+  const onCreateFolder = async (folderName: string) => {
+    try {
+      // 构建完整的文件夹路径
+      const fullFolderName = currentFolderId ? `${currentFolderId}${folderName}` : folderName;
+
+      const params = new URLSearchParams({
+        bucket: DEFAULT_BUCKET,
+        folder_name: fullFolderName
+      });
+
+      const response = await fetch(`${MINIO_API_URL}/create-folder`, {
+        method: 'POST',
+        body: params
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Create folder failed");
+      }
+
+      message.success(t("sys.menu.file.createFolderSuccess"));
+      fetchFiles(currentFolderId); // 刷新当前目录
+    } catch (error) {
+      console.error('Create folder error:', error);
+      message.error(t("sys.menu.file.createFolderFailed"));
+    }
+  };
+
   // 文件模态框状态
   const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
     formValue: { ...defaultFileValue },
@@ -117,7 +183,9 @@ export default function FilePage() {
     fileStructure: files,
     onOk: (values) => handleFileOperation(values),
     onCancel: () => setFileModalProps(prev => ({ ...prev, show: false })),
+    onRename: onRename,
   });
+  
 
   // 文件夹模态框状态
   const [folderModalProps, setFolderModalProps] = useState<FolderModalProps>({
@@ -127,8 +195,9 @@ export default function FilePage() {
     fileStructure: files,
     onOk: (values) => handleFolderOperation(values),
     onCancel: () => setFolderModalProps(prev => ({ ...prev, show: false })),
+    onRename: onRename,
+    onCreateFolder: onCreateFolder,
   });
-
   // 处理文件上传
   const handleFileOperation = async (values: File) => {
     if (fileInputRef.current?.files?.length) {
@@ -163,11 +232,21 @@ export default function FilePage() {
   };
 
   // 处理文件夹操作
-  const handleFolderOperation = (values: File) => {
-    message.warning(t("sys.menu.file.folderNotSupported"));
-    setFolderModalProps(prev => ({ ...prev, show: false }));
+  const handleFolderOperation = async (values: File) => {
+    try {
+      if (values.id) {
+        // 重命名文件夹
+        await onRename(values, values.name);
+      } else {
+        // 创建新文件夹
+        await onCreateFolder(values.name);
+      }
+      fetchFiles(currentFolderId); // 刷新当前目录
+    } catch (error) {
+      console.error('Folder operation failed:', error);
+    }
   };
-  
+
   const columns: ColumnsType<File> = [
     {
       title: t("sys.menu.file.name"),
@@ -340,13 +419,19 @@ export default function FilePage() {
     }
   };
 
-  const onCreateFolder = () => {
-    message.info(t("sys.menu.file.createFolderInMinio"));
-  };
 
   const onEdit = (formValue: File) => {
     if (formValue.type === FileType.FOLDER) {
-      message.warning(t("sys.menu.file.folderNotSupported"));
+      setFolderModalProps(prev => ({
+        ...prev,
+        show: true,
+        title: t("sys.menu.file.renameFolder"),
+        formValue: {
+          ...formValue,
+          name: formValue.name.endsWith('/') ? 
+            formValue.name.slice(0, -1) : formValue.name
+        },
+      }));
     } else {
       setFileModalProps(prev => ({
         ...prev,
@@ -440,7 +525,7 @@ export default function FilePage() {
       <Button 
         type="primary" 
         style={{ marginLeft: 8 }} 
-        onClick={onCreateFolder}
+        onClick={onCreateFolder(name)}
         icon={<Iconify icon="ant-design:folder-add-outlined" />}
       >
         {t("sys.menu.file.newFolder")}

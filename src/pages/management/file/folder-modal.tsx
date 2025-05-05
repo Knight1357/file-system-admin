@@ -1,4 +1,3 @@
-// folder-modal.tsx
 import { Form, Input, Modal, Radio } from "antd";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +12,8 @@ export type FolderModalProps = {
   fileStructure: File[];
   onOk: (values: File) => void;
   onCancel: VoidFunction;
+  onRename: (formValue: File, newName: string) => Promise<void>;
+  onCreateFolder: (folderName: string) => Promise<void>;
 };
 
 export default function FolderModal({ 
@@ -21,7 +22,9 @@ export default function FolderModal({
   formValue, 
   fileStructure, 
   onOk, 
-  onCancel 
+  onCancel,
+  onRename,
+  onCreateFolder
 }: FolderModalProps) {
   const { t } = useTranslation();
   const [form] = Form.useForm();
@@ -39,17 +42,17 @@ export default function FolderModal({
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      const folderData: File = {
-        ...formValue,
-        ...values,
-        type: FileType.FOLDER, // 强制类型为文件夹
-        size: 0, // 文件夹大小固定为0
-        modifyTime: new Date(),
-        createTime: formValue.id ? formValue.createTime : new Date(),
-      };
       
-      onOk(folderData);
+      if (formValue.id) {
+        // 重命名文件夹
+        await onRename(formValue, values.name);
+      } else {
+        // 创建新文件夹
+        await onCreateFolder(values.name);
+      }
+      
       form.resetFields();
+      onCancel();
     } catch (err) {
       console.error("Form validation failed:", err);
     }
