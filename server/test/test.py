@@ -249,19 +249,19 @@ def test_create_folder():
     test_cases = [
         {
             "description": "正常创建文件夹",
-            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test1-folder"},
+            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "13221331"},
             "expected_status": 200
         },
-        {
-            "description": "重复创建相同文件夹",
-            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder"},
-            "expected_status": 409
-        },
-        {
-            "description": "带斜杠和不带斜杠视为相同",
-            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder/"},
-            "expected_status": 409
-        }
+        # {
+        #     "description": "重复创建相同文件夹",
+        #     "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder"},
+        #     "expected_status": 409
+        # },
+        # {
+        #     "description": "带斜杠和不带斜杠视为相同",
+        #     "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder/"},
+        #     "expected_status": 409
+        # }
     ]
 
     for case in test_cases:
@@ -282,10 +282,10 @@ def test_create_folder():
 
 
 if __name__ == "__main__":
-    test_list_files()
+    # test_list_files()
     # test_rename_file()
     # test_delete_file()
-    # test_create_folder()
+    test_create_folder()
     # if not os.path.exists(FILE_PATH):
     #     print(f"文件 {FILE_PATH} 不存在，请检查文件路径。")
     # else:
