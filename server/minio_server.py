@@ -100,35 +100,76 @@ def download_file():
 @app.route('/list', methods=['GET'])
 def list_files():
     """
-    列出存储桶中指定路径下的文件，包含文件名、大小和修改时间
+    列出存储桶中指定路径下的文件和文件夹
+    返回结构：
+    {
+        "bucket": "bucket-name",
+        "prefix": "current-path/",
+        "files": [
+            {"name": "file.txt", "size": 123, "last_modified": "2023-01-01T00:00:00", "type": "file"},
+            {"name": "subfolder/", "size": 0, "last_modified": null, "type": "folder"}
+        ]
+    }
     """
     bucket_name = request.args.get('bucket', DEFAULT_BUCKET)
-    prefix = request.args.get('prefix', '')  # 新增prefix参数，默认为空
+    prefix = request.args.get('prefix', '')
     
     try:
         if not minio_client.bucket_exists(bucket_name):
             return jsonify({"error": "Bucket does not exist"}), 404
         
-        # 添加prefix参数来过滤指定路径下的文件
+        # 获取对象列表（非递归）
         objects = minio_client.list_objects(bucket_name, prefix=prefix, recursive=False)
 
-        file_list = []
+        items = []
+        seen_folders = set()  # 用于去重文件夹
+        
         for obj in objects:
-            # 如果是目录则跳过（MinIO中目录以/结尾）
+            # 处理文件夹（以/结尾的对象）
             if obj.object_name.endswith('/'):
+                folder_name = obj.object_name
+                # 跳过与当前 prefix 完全匹配的文件夹（不显示正在列出的目录本身）
+                if folder_name == prefix:
+                    continue
+                if folder_name not in seen_folders:
+                    items.append({
+                        "name": folder_name,
+                        "size": 0,
+                        "last_modified": None,
+                        "type": "folder"
+                    })
+                    seen_folders.add(folder_name)
                 continue
                 
-            file_info = {
+            # 处理普通文件
+            # 如果是嵌套在子目录中的文件，提取其直接父目录
+            if '/' in obj.object_name[len(prefix):]:
+                dir_path = prefix + obj.object_name[len(prefix):].split('/')[0] + '/'
+                if dir_path not in seen_folders:
+                    items.append({
+                        "name": dir_path,
+                        "size": 0,
+                        "last_modified": None,
+                        "type": "folder"
+                    })
+                    seen_folders.add(dir_path)
+                continue
+            
+            # 普通文件
+            items.append({
                 "name": obj.object_name,
                 "size": obj.size,
-                "last_modified": obj.last_modified.isoformat() if obj.last_modified else None
-            }
-            file_list.append(file_info)
+                "last_modified": obj.last_modified.isoformat() if obj.last_modified else None,
+                "type": "file"
+            })
+        
+        # 按类型排序：文件夹在前，文件在后
+        items.sort(key=lambda x: (x["type"] != "folder", x["name"]))
         
         return jsonify({
             "bucket": bucket_name,
             "prefix": prefix,
-            "files": file_list
+            "files": items
         }), 200
         
     except S3Error as e:
@@ -223,7 +264,50 @@ def rename_file():
         return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route('/create-folder', methods=['POST'])
+def create_folder():
+    """
+    在MinIO中创建文件夹（实际上是创建空对象）
+    """
+    bucket_name = request.args.get('bucket', DEFAULT_BUCKET)
+    folder_name = request.args.get('folder_name')
+    
+    if not folder_name:
+        return jsonify({"error": "folder_name parameter is required"}), 400
+    
+    try:
+        # 确保存储桶存在
+        if not minio_client.bucket_exists(bucket_name):
+            return jsonify({"error": "Bucket does not exist"}), 404
         
+        # 规范化文件夹名称（确保以/结尾）
+        normalized_name = folder_name.rstrip('/') + '/'
+        
+        # 检查文件夹是否已存在（考虑MinIO的两种表示方式）
+        objects = minio_client.list_objects(bucket_name, prefix=normalized_name, recursive=False)
+        if any(obj.object_name == normalized_name for obj in objects):
+            return jsonify({"error": f"Folder '{folder_name}' already exists"}), 409
+        
+        # 创建文件夹（上传一个0字节的对象）
+        minio_client.put_object(
+            bucket_name,
+            normalized_name,
+            io.BytesIO(b''),
+            0,
+            content_type='application/x-directory'  # 明确标记为目录
+        )
+        
+        return jsonify({
+            "message": "Folder created successfully",
+            "bucket": bucket_name,
+            "folder": normalized_name
+        }), 200
+        
+    except S3Error as e:
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
         
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

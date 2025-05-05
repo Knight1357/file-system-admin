@@ -45,9 +45,9 @@ def download_file(object_name):
 def test_list_files():
     test_cases = [
         {"description": "列出根目录文件", "params": {"bucket": DEFAULT_BUCKET}},
-        {"description": "列出指定路径文件", "params": {"bucket": DEFAULT_BUCKET, "prefix": "3213/"}},
-        {"description": "列出不存在的路径", "params": {"bucket": DEFAULT_BUCKET, "prefix": "nonexistent/"}},
-        {"description": "列出不存在的存储桶", "params": {"bucket": "nonexistent-bucket"}},
+        {"description": "列出指定路径文件", "params": {"bucket": DEFAULT_BUCKET, "prefix": "test-folder/"}},
+        # {"description": "列出不存在的路径", "params": {"bucket": DEFAULT_BUCKET, "prefix": "nonexistent/"}},
+        # {"description": "列出不存在的存储桶", "params": {"bucket": "nonexistent-bucket"}},
     ]
 
     for case in test_cases:
@@ -244,12 +244,48 @@ def test_rename_file():
             os.remove(f)
             
 
+def test_create_folder():
+
+    test_cases = [
+        {
+            "description": "正常创建文件夹",
+            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test1-folder"},
+            "expected_status": 200
+        },
+        {
+            "description": "重复创建相同文件夹",
+            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder"},
+            "expected_status": 409
+        },
+        {
+            "description": "带斜杠和不带斜杠视为相同",
+            "params": {"bucket": DEFAULT_BUCKET, "folder_name": "test-folder/"},
+            "expected_status": 409
+        }
+    ]
+
+    for case in test_cases:
+        print(f"\n测试用例: {case['description']}")
+        response = requests.post(f"{BASE_URL}/create-folder", params=case['params'])
+        
+        if response.status_code == case['expected_status']:
+            status = "成功" if response.status_code == 200 else "符合预期失败"
+            print(f"{status}, 状态码: {response.status_code}")
+            if response.status_code == 200:
+                print(response.json())
+            else:
+                print(f"错误信息: {response.json().get('error')}")
+        else:
+            print(f"测试失败，预期 {case['expected_status']}，实际 {response.status_code}")
+            print(f"响应: {response.json()}")
+        
+
 
 if __name__ == "__main__":
-    # test_list_files()
-    test_rename_file()
+    test_list_files()
+    # test_rename_file()
     # test_delete_file()
-    
+    # test_create_folder()
     # if not os.path.exists(FILE_PATH):
     #     print(f"文件 {FILE_PATH} 不存在，请检查文件路径。")
     # else:
