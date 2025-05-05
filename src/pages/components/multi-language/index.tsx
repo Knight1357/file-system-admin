@@ -26,8 +26,8 @@ export default function MultiLanguagePage() {
 			</Typography.Link>
 			<Card title="Flexible">
 				<Radio.Group onChange={(e) => setLocale(e.target.value)} value={locale}>
-					<Radio value={LocalEnum.en_US}>English</Radio>
 					<Radio value={LocalEnum.zh_CN}>Chinese</Radio>
+					<Radio value={LocalEnum.en_US}>English</Radio>
 				</Radio.Group>
 
 				<div className="flex items-center text-4xl">

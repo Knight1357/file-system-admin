@@ -101,6 +101,7 @@ const DASHBOARD_PERMISSION = {
 		},
 	],
 };
+
 const MANAGEMENT_PERMISSION = {
 	id: "0901673425580518",
 	parentId: "",
@@ -206,6 +207,57 @@ const MANAGEMENT_PERMISSION = {
 		},
 	],
 };
+
+const TEST_USER_PERMISSION = {
+	id: "0901673425580518",
+	parentId: "",
+	label: "sys.menu.management",
+	name: "Management",
+	icon: "ic-management",
+	type: PermissionType.CATALOGUE,
+	route: "management",
+	order: 2,
+	children: [
+		{
+			id: "2781684678535712",
+			parentId: "0901673425580518",
+			label: "sys.menu.file.index",
+			name: "File",
+			type: PermissionType.MENU,
+			route: "file",
+			component: "/management/file/index.tsx",
+		},
+		{
+			id: "2781684678535711",
+			parentId: "0901673425580518",
+			label: "sys.menu.user.index",
+			name: "User",
+			type: PermissionType.CATALOGUE,
+			route: "user",
+			children: [
+				{
+					id: "4754063958766648",
+					parentId: "2781684678535711",
+					label: "sys.menu.user.profile",
+					name: "Profile",
+					type: PermissionType.MENU,
+					route: "profile",
+					component: "/management/user/profile/index.tsx",
+				},
+				{
+					id: "2516598794787938",
+					parentId: "2781684678535711",
+					label: "sys.menu.user.account",
+					name: "Account",
+					type: PermissionType.MENU,
+					route: "account",
+					component: "/management/user/account/index.tsx",
+				},
+			],
+		},
+	],
+};
+
 const COMPONENTS_PERMISSION = {
 	id: "2271615060673773",
 	parentId: "",
@@ -534,6 +586,15 @@ export const PERMISSION_LIST = [
 	// ...OTHERS_PERMISSION,
 ];
 
+export const TEST_PERMISSION_LIST = [
+	TEST_USER_PERMISSION,
+	// COMPONENTS_PERMISSION,
+	// FUNCTIONS_PERMISSION,
+	// MENU_LEVEL_PERMISSION,
+	// ERRORS_PERMISSION,
+	// ...OTHERS_PERMISSION,
+];
+
 /**
  * User role mock
  */
@@ -555,6 +616,15 @@ const TEST_ROLE = {
 	desc: "test",
 	permission: [DASHBOARD_PERMISSION, COMPONENTS_PERMISSION, FUNCTIONS_PERMISSION],
 };
+const TEST_USER_ROLE = {
+	id: "9931665660771471",
+	name: "Test_User",
+	label: "test_user",
+	status: BasicStatus.ENABLE,
+	order: 2,
+	desc: "test user",
+	permission: [TEST_USER_PERMISSION],
+};
 const TEST_ROLE_1 = {
 	id: "9931665660771471",
 	name: "Test1",
@@ -564,7 +634,7 @@ const TEST_ROLE_1 = {
 	desc: "test",
 	permission: [DASHBOARD_PERMISSION, COMPONENTS_PERMISSION, FUNCTIONS_PERMISSION],
 };
-export const ROLE_LIST = [ADMIN_ROLE, TEST_ROLE, TEST_ROLE_1];
+export const ROLE_LIST = [ADMIN_ROLE, TEST_USER_ROLE, TEST_ROLE, TEST_ROLE_1];
 
 /**
  * User data mock
@@ -582,14 +652,14 @@ export const DEFAULT_USER = {
 };
 export const TEST_USER = {
 	id: "efaa20ea-4dc5-47ee-a200-8a899be29494",
-	username: "test",
+	username: "test_user",
 	password: "demo1234",
 	email: faker.internet.email(),
 	avatar: faker.image.avatarGitHub(),
 	createdAt: faker.date.anytime(),
 	updatedAt: faker.date.recent(),
-	role: TEST_ROLE,
-	permissions: TEST_ROLE.permission,
+	role: TEST_USER_ROLE,
+	permissions: TEST_USER_ROLE.permission,
 };
 export const TEST_USER_1 = {
 	id: "efaa20ea-4dc5-47ee-a200-8a899be29491",
@@ -683,9 +753,7 @@ export const FILE_LIST = [
 		status: BasicStatus.ENABLE,
 		createTime: new Date("2023-01-01 12:30:45"),
 		modifyTime: new Date("2023-10-01 12:30:45"),
-		children: [
-			"subfolder1"
-		],
+		children: ["subfolder1"],
 	},
 	{
 		id: "file1",
@@ -708,9 +776,7 @@ export const FILE_LIST = [
 		status: BasicStatus.ENABLE,
 		createTime: new Date("2023-04-01 12:30:45"),
 		modifyTime: new Date("2023-09-15 12:30:45"),
-		children: [
-			"file2","file3"
-		],
+		children: ["file2", "file3"],
 	},
 	{
 		id: "file2",
@@ -745,9 +811,7 @@ export const FILE_LIST = [
 		status: BasicStatus.ENABLE,
 		createTime: new Date("2023-02-01 12:30:45"),
 		modifyTime: new Date("2023-11-01 12:30:45"),
-		children: [
-			"file4","file5"
-		],
+		children: ["file4", "file5"],
 	},
 	{
 		id: "file4",
