@@ -171,6 +171,8 @@
   "sys.menu.file.operation": "Operation",
   "sys.menu.file.parent.name": "Parent",
   "sys.menu.file.refresh": "Refresh",
+  "sys.menu.file.renameFailed": "Rename Failed",
+  "sys.menu.file.renameSuccess": "Rename Success",
   "sys.menu.file.status": "Status",
   "sys.menu.file.typeFile": "File",
   "sys.menu.file.typeFolder": "Folder",

@@ -116,28 +116,25 @@ export default function FilePage() {
       message.warning(t("sys.menu.file.selectRename"));
       return;
     }
-
+  
     try {
       // 构建完整的对象路径
       const sourcePath = currentFolderId ? `${currentFolderId}${formValue.name}` : formValue.name;
       const targetPath = currentFolderId ? `${currentFolderId}${newName}` : newName;
-
-      const params = new URLSearchParams({
+  
+      const response = await fetch(`${MINIO_API_URL}/rename?${new URLSearchParams({
         bucket: DEFAULT_BUCKET,
         source_name: sourcePath,
         target_name: targetPath
+      })}`, {
+        method: 'POST'
       });
-
-      const response = await fetch(`${MINIO_API_URL}/rename`, {
-        method: 'POST',
-        body: params
-      });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Rename failed");
       }
-
+  
       message.success(t("sys.menu.file.renameSuccess"));
       fetchFiles(currentFolderId); // 刷新当前目录
     } catch (error) {
