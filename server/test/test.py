@@ -8,22 +8,74 @@ DEFAULT_BUCKET = "test"
 # 要上传的文件路径
 FILE_PATH = r'test\test.txt'
 
-def upload_file():
-    try:
-        with open(FILE_PATH, 'rb') as file:
-            files = {'file': file}
-            data = {'bucket': DEFAULT_BUCKET}
-            response = requests.post(f"{BASE_URL}/upload", files=files, data=data)
-            if response.status_code == 200:
-                result = response.json()
-                print("文件上传成功:")
-                print(result)
-                return result['object']
+def test_upload_file():
+    print("\n测试文件上传功能")
+    
+    # 准备测试文件
+    test_file = "1test_upload.txt"
+    with open(test_file, 'w') as f:
+        f.write("This is a test file for upload")
+    
+    test_cases = [
+        {
+            "description": "正常上传文件",
+            "files": {'file': open(test_file, 'rb')},
+            "data": {
+                'bucket': DEFAULT_BUCKET,
+                'object_name': test_file
+            },
+            "expected_status": 200
+        },
+        # {
+        #     "description": "上传到指定路径",
+        #     "files": {'file': open(test_file, 'rb')},
+        #     "data": {
+        #         'bucket': DEFAULT_BUCKET,
+        #         'object_name': 'subfolder/' + test_file
+        #     },
+        #     "expected_status": 200
+        # },
+        # {
+        #     "description": "无文件上传",
+        #     "files": {},
+        #     "data": {},
+        #     "expected_status": 400
+        # }
+    ]
+    
+    for case in test_cases:
+        print(f"\n测试用例: {case['description']}")
+        
+        try:
+            response = requests.post(
+                f"{BASE_URL}/upload",
+                files=case.get('files', {}),
+                data=case.get('data', {})
+            )
+            
+            if response.status_code == case['expected_status']:
+                status = "成功" if response.status_code == 200 else "符合预期失败"
+                print(f"{status}, 状态码: {response.status_code}")
+                if response.status_code == 200:
+                    result = response.json()
+                    print(f"上传结果: {result['message']}")
+                    print(f"存储桶: {result['bucket']}")
+                    print(f"文件名: {result['object']}")
             else:
-                print(f"文件上传失败，状态码: {response.status_code}")
-                print(f"响应内容: {response.text}")
-    except Exception as e:
-        print(f"发生错误: {e}")
+                print(f"测试失败，预期状态码: {case['expected_status']}, 实际状态码: {response.status_code}")
+                if response.status_code >= 400:
+                    result = response.json()
+                    print(f"错误信息: {result['error']}")
+                    
+        except Exception as e:
+            print(f"发生错误: {e}")
+        finally:
+            if 'file' in case.get('files', {}):
+                case['files']['file'].close()
+    
+    # 清理测试文件
+    if os.path.exists(test_file):
+        os.remove(test_file)
 
 def download_file(object_name):
     try:
@@ -282,10 +334,11 @@ def test_create_folder():
 
 
 if __name__ == "__main__":
+    test_upload_file()
     # test_list_files()
     # test_rename_file()
     # test_delete_file()
-    test_create_folder()
+    # test_create_folder()
     # if not os.path.exists(FILE_PATH):
     #     print(f"文件 {FILE_PATH} 不存在，请检查文件路径。")
     # else:

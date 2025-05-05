@@ -23,9 +23,6 @@ DEFAULT_BUCKET = "test"
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
-    """
-    上传文件到MinIO
-    """
     if 'file' not in request.files:
         return jsonify({"error": "No file part"}), 400
     
@@ -33,34 +30,26 @@ def upload_file():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     
-    # 可选参数
     bucket_name = request.form.get('bucket', DEFAULT_BUCKET)
-    object_name = request.form.get('object_name', file.filename)
+    object_name = request.form.get('object_name', file.filename)  # 确保字段名一致
     
     try:
-        # 确保存储桶存在
         if not minio_client.bucket_exists(bucket_name):
             minio_client.make_bucket(bucket_name)
         
-        # 上传文件
         file_data = file.read()
-        file_stream = io.BytesIO(file_data)
         minio_client.put_object(
             bucket_name,
             object_name,
-            file_stream,
+            io.BytesIO(file_data),
             length=len(file_data),
             content_type=file.content_type
         )
         
         return jsonify({
             "message": "File uploaded successfully",
-            "bucket": bucket_name,
             "object": object_name
         }), 200
-        
-    except S3Error as e:
-        return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

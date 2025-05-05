@@ -199,35 +199,43 @@ export default function FilePage() {
   
   // 处理文件上传
   const handleFileOperation = async (values: File) => {
-    if (fileInputRef.current?.files?.length) {
-      const file = fileInputRef.current.files[0];
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('bucket', DEFAULT_BUCKET);
-      
-      // 构建完整的对象路径
-      const objectPath = currentFolderId ? `${currentFolderId}${values.name}` : values.name;
-      formData.append('object_name', objectPath);
-  
-      try {
-        const response = await fetch(`${MINIO_API_URL}/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-  
-        if (!response.ok) {
-          throw new Error('Upload failed');
-        }
-  
-        message.success(t("sys.menu.file.uploadSuccess"));
-        fetchFiles(currentFolderId); // 刷新当前目录
-      } catch (error) {
-        message.error(t("sys.menu.file.uploadFailed"));
-        console.error('Upload error:', error);
-      }
+    const fileInput = fileInputRef.current;
+    if (!fileInput?.files?.length) {
+      message.error(t("sys.menu.file.noFileSelected"));
+      return;
     }
   
-    setFileModalProps(prev => ({ ...prev, show: false }));
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('bucket', DEFAULT_BUCKET);
+    
+    // Use the name from form or original filename
+    const objectName = values.name || file.name;
+    const objectPath = currentFolderId ? `${currentFolderId}${objectName}` : objectName;
+    formData.append('object_name', objectPath);
+  
+    try {
+      const response = await fetch(`${MINIO_API_URL}/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || t("sys.menu.file.uploadFailed"));
+      }
+  
+      message.success(t("sys.menu.file.uploadSuccess"));
+      fetchFiles(currentFolderId);
+    } catch (error) {
+      console.error('Upload error:', error);
+      message.error(t("sys.menu.file.uploadFailed"));
+    } finally {
+      setFileModalProps(prev => ({ ...prev, show: false }));
+      // Reset file input after upload
+      if (fileInput) fileInput.value = '';
+    }
   };
 
   // 处理文件夹操作
@@ -375,7 +383,11 @@ export default function FilePage() {
   };
 
   const onUpload = () => {
-    fileInputRef.current?.click();
+    // Reset file input before triggering click
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+      fileInputRef.current.click();
+    }
   };
   
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -387,14 +399,12 @@ export default function FilePage() {
       show: true,
       formValue: {
         ...defaultFileValue,
-        name: file.name,
+        name: file.name, // Preserve original filename
         parentId: currentFolderId,
         size: file.size,
         type: getFileType(file.name),
       },
     }));
-  
-    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const onDownload = async (file: File | null) => {
