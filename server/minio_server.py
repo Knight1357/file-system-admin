@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify, send_file
+from flask_cors import CORS
 from minio import Minio
 from minio.error import S3Error
 import io
 import os
 
 app = Flask(__name__)
+# 允许所有来源的跨域请求
+CORS(app)
 
 # 配置MinIO客户端
 minio_client = Minio(

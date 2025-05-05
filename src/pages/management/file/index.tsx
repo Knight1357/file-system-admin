@@ -1,14 +1,12 @@
+// index.tsx
 import { Button, Card, Popconfirm, Tag, message } from "antd";
 import Table, { type ColumnsType } from "antd/es/table";
 import { isNil } from "ramda";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { FILE_LIST } from "@/_mock/assets";
 import { IconButton, Iconify, SvgIcon } from "@/components/icon";
-
-// 引入需要的图标
-import { FaFolder,FaFileImage,FaFilePdf,FaFileWord,FaFileVideo,FaFileAudio,FaFile } from "react-icons/fa";
+import { FaFolder, FaFileImage, FaFilePdf, FaFileWord, FaFileVideo, FaFileAudio, FaFile } from "react-icons/fa";
 
 import FileModal, { type FileModalProps } from "./file-modal";
 import FolderModal, { type FolderModalProps } from "./folder-modal";
@@ -75,62 +73,59 @@ export default function FilePage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [currentFolderId, setCurrentFolderId] = useState<string>(""); // 当前所在文件夹
-  const [selectedFileId, setSelectedFileId] = useState<string>(); // 当前选中文件
-  const [folderStack, setFolderStack] = useState<string[]>([]); // 文件夹导航栈
+  const [currentFolderId, setCurrentFolderId] = useState<string>("");
+  const [selectedFileId, setSelectedFileId] = useState<string>();
+  const [folderStack, setFolderStack] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   // 从 MinIO 获取文件列表
-// 修改 fetchFiles 函数
-const fetchFiles = async () => {
-  setLoading(true);
-  try {
-    const response = await fetch(`${MINIO_API_URL}/list?bucket=${DEFAULT_BUCKET}`, {
-      mode: 'cors', // 确保启用 CORS
-      headers: {
-        'Accept': 'application/json',
+  const fetchFiles = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${MINIO_API_URL}/list?bucket=${DEFAULT_BUCKET}`);
+      console.log("Raw Response:", response); // 打印原始响应对象
+      
+      const data = await response.json();
+      console.log("Parsed Data:", data); // 打印解析后的数据
+      
+      if (!data?.files) {
+        console.error("数据格式异常：缺少files字段", data);
+        throw new Error("Invalid response format");
       }
-    });
+      
+      const fileList: File[] = data.files.map((file: any) => {
+        // 确保必要字段存在
+        if (typeof file.name !== 'string') {
+          console.warn("非法文件条目，缺少name字段:", file);
+          return null;
+        }
+        
+        const isFolder = file.name.endsWith('/') || file.size === null;
+        return {
+          id: `${MINIO_API_URL}/download?bucket=${DEFAULT_BUCKET}&object_name=${encodeURIComponent(file.name)}`,
+          name: file.name,
+          type: isFolder ? FileType.FOLDER : getFileType(file.name),
+          size: isFolder ? 0 : Number(file.size) || 0,
+          // 处理可能不存在的日期字段
+          modifyTime: file.last_modified ? new Date(file.last_modified) : new Date(),
+          createTime: file.last_modified ? new Date(file.last_modified) : new Date(),
+          status: BasicStatus.ENABLE,
+          parentId: currentFolderId
+        };
+      }).filter(Boolean); // 过滤掉null值
 
-    // 添加响应状态检查
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to fetch files');
+      setFiles(fileList);
+    } catch (error) {
+      console.error('Error fetching files:', error);
+      message.error(t("sys.menu.file.fetchFailed"));
+    } finally {
+      setLoading(false);
     }
+  };
 
-    const data = await response.json();
-    console.log('Received data from server:', data); // 调试日志
-
-    if (!data.files) {
-      throw new Error('Invalid response format: missing files array');
-    }
-
-    // 转换 MinIO 文件列表为我们的 File 类型
-    const fileList: File[] = data.files.map((file: any) => ({
-      id: `${MINIO_API_URL}/download?bucket=${DEFAULT_BUCKET}&object_name=${encodeURIComponent(file.name)}`,
-      parentId: currentFolderId,
-      name: file.name,
-      type: file.name.endsWith('/') ? FileType.FOLDER : getFileType(file.name),
-      status: BasicStatus.ENABLE,
-      createTime: new Date(file.last_modified || Date.now()),
-      modifyTime: new Date(file.last_modified || Date.now()),
-      size: file.size || 0,
-    }));
-
-    console.log('Processed file list:', fileList); // 调试日志
-    setFiles(fileList);
-  } catch (error) {
-    console.error('Error details:', error); // 详细错误日志
-    message.error(t("sys.menu.file.fetchFailed"));
-  } finally {
-    setLoading(false);
-  }
-};
-
-// 确保 useEffect 正确调用
-useEffect(() => {
-  fetchFiles();
-}, [currentFolderId, t]); // 添加 t 到依赖数组
+  useEffect(() => {
+    fetchFiles();
+  }, [currentFolderId, t]);
 
   // 文件模态框状态
   const [fileModalProps, setFileModalProps] = useState<FileModalProps>({
@@ -184,11 +179,10 @@ useEffect(() => {
 
   // 处理文件夹操作
   const handleFolderOperation = (values: File) => {
-    // MinIO 不支持创建空文件夹，这里保持原有逻辑但不实际创建
     message.warning(t("sys.menu.file.folderNotSupported"));
     setFolderModalProps(prev => ({ ...prev, show: false }));
   };
-
+  
   const columns: ColumnsType<File> = [
     {
       title: t("sys.menu.file.icon"),

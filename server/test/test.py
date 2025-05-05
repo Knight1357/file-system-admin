@@ -6,7 +6,7 @@ BASE_URL = "http://127.0.0.1:5000"
 # 默认存储桶名称
 DEFAULT_BUCKET = "test"
 # 要上传的文件路径
-FILE_PATH = r'C:\Users\48444\Documents\projects\file-system-admin\server\test\test.txt'
+FILE_PATH = r'test\test.txt'
 
 def upload_file():
     try:
