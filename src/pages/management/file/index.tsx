@@ -149,28 +149,29 @@ export default function FilePage() {
   // 创建文件夹
   const onCreateFolder = async (folderName: string) => {
     try {
-      // 构建完整的文件夹路径
-      const fullFolderName = currentFolderId ? `${currentFolderId}${folderName}` : folderName;
-
-      const params = new URLSearchParams({
-        bucket: DEFAULT_BUCKET,
-        folder_name: fullFolderName
+      const normalizedFolderName = folderName.replace(/^\//, '').replace(/\/$/, '') + '/';
+      const fullFolderName = currentFolderId ? 
+        `${currentFolderId}${normalizedFolderName}` : 
+        normalizedFolderName;
+  
+      // 修改这里：使用URL查询参数
+      const params = new URLSearchParams();
+      params.append('bucket', DEFAULT_BUCKET);
+      params.append('folder_name', fullFolderName);
+  
+      const response = await fetch(`${MINIO_API_URL}/create-folder?${params}`, {
+        method: 'POST'  // 保持POST方法但参数放在URL
       });
-
-      const response = await fetch(`${MINIO_API_URL}/create-folder`, {
-        method: 'POST',
-        body: params
-      });
-
+  
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Create folder failed");
       }
-
+  
       message.success(t("sys.menu.file.createFolderSuccess"));
-      fetchFiles(currentFolderId); // 刷新当前目录
+      fetchFiles(currentFolderId);
     } catch (error) {
-      console.error('Create folder error:', error);
+      console.error('Error:', error);
       message.error(t("sys.menu.file.createFolderFailed"));
     }
   };
@@ -474,6 +475,20 @@ export default function FilePage() {
     setSelectedFile(record);
   };
 
+  const handleCreateFolder = (e?: React.MouseEvent) => {
+    e?.preventDefault(); // 可选：阻止默认行为
+    
+    setFolderModalProps(prev => ({
+      ...prev,
+      show: true,
+      title: t("sys.menu.file.newFolder"),
+      formValue: {
+        ...defaultFolderValue,
+        parentId: currentFolderId
+      },
+    }));
+  };
+
   const handleRowDoubleClick = (record: File) => {
     if (record.type === FileType.FOLDER) {
       const newPrefix = record.name.endsWith('/') ? record.name : `${record.name}/`;
@@ -525,7 +540,7 @@ export default function FilePage() {
       <Button 
         type="primary" 
         style={{ marginLeft: 8 }} 
-        onClick={onCreateFolder(name)}
+        onClick={handleCreateFolder}
         icon={<Iconify icon="ant-design:folder-add-outlined" />}
       >
         {t("sys.menu.file.newFolder")}
