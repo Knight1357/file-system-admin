@@ -1,6 +1,7 @@
 // index.tsx
 import { Button, Card, Popconfirm, Tag, message } from "antd";
 import Table, { type ColumnsType } from "antd/es/table";
+import { ReloadOutlined } from '@ant-design/icons';
 import { isNil } from "ramda";
 import { useRef, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -44,27 +45,17 @@ const defaultFolderValue: File = {
 
 // 获取文件类型
 const getFileType = (fileName: string): FileType => {
+  if (fileName.endsWith('/')) return FileType.FOLDER;
+  
   const extension = fileName.split('.').pop()?.toLowerCase();
   switch (extension) {
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
+    case 'jpg': case 'jpeg': case 'png': case 'gif':
       return FileType.JPEG;
-    case 'pdf':
-      return FileType.PDF;
-    case 'doc':
-    case 'docx':
-      return FileType.DOCX;
-    case 'mp4':
-    case 'mov':
-    case 'avi':
-      return FileType.MP4;
-    case 'mp3':
-    case 'wav':
-      return FileType.MP3;
-    default:
-      return FileType.FILE;
+    case 'pdf': return FileType.PDF;
+    case 'doc': case 'docx': return FileType.DOCX;
+    case 'mp4': case 'mov': case 'avi': return FileType.MP4;
+    case 'mp3': case 'wav': return FileType.MP3;
+    default: return FileType.FILE;
   }
 };
 
@@ -79,41 +70,32 @@ export default function FilePage() {
   const [loading, setLoading] = useState(false);
 
   // 从 MinIO 获取文件列表
-  const fetchFiles = async () => {
+  const fetchFiles = async (prefix = "") => {
     setLoading(true);
     try {
-      const response = await fetch(`${MINIO_API_URL}/list?bucket=${DEFAULT_BUCKET}`);
-      console.log("Raw Response:", response); // 打印原始响应对象
+      const params = new URLSearchParams({
+        bucket: DEFAULT_BUCKET,
+        prefix: prefix
+      });
       
+      const response = await fetch(`${MINIO_API_URL}/list?${params}`);
       const data = await response.json();
-      console.log("Parsed Data:", data); // 打印解析后的数据
       
-      if (!data?.files) {
-        console.error("数据格式异常：缺少files字段", data);
-        throw new Error("Invalid response format");
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch files");
       }
-      
-      const fileList: File[] = data.files.map((file: any) => {
-        // 确保必要字段存在
-        if (typeof file.name !== 'string') {
-          console.warn("非法文件条目，缺少name字段:", file);
-          return null;
-        }
-        
-        const isFolder = file.name.endsWith('/') || file.size === null;
-        return {
-          id: `${MINIO_API_URL}/download?bucket=${DEFAULT_BUCKET}&object_name=${encodeURIComponent(file.name)}`,
-          name: file.name,
-          type: isFolder ? FileType.FOLDER : getFileType(file.name),
-          size: isFolder ? 0 : Number(file.size) || 0,
-          // 处理可能不存在的日期字段
-          modifyTime: file.last_modified ? new Date(file.last_modified) : new Date(),
-          createTime: file.last_modified ? new Date(file.last_modified) : new Date(),
-          status: BasicStatus.ENABLE,
-          parentId: currentFolderId
-        };
-      }).filter(Boolean); // 过滤掉null值
-
+  
+      const fileList: File[] = data.files.map((file: any) => ({
+        id: file.name,  // 使用文件名作为ID
+        name: file.name.split('/').pop() || file.name, // 提取文件名部分
+        type: file.name.endsWith('/') ? FileType.FOLDER : getFileType(file.name),
+        size: file.size || 0,
+        modifyTime: new Date(file.last_modified || Date.now()),
+        createTime: new Date(file.last_modified || Date.now()),
+        status: BasicStatus.ENABLE,
+        parentId: prefix
+      }));
+  
       setFiles(fileList);
     } catch (error) {
       console.error('Error fetching files:', error);
@@ -124,7 +106,7 @@ export default function FilePage() {
   };
 
   useEffect(() => {
-    fetchFiles();
+    fetchFiles(currentFolderId);
   }, [currentFolderId, t]);
 
   // 文件模态框状态
@@ -154,26 +136,29 @@ export default function FilePage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('bucket', DEFAULT_BUCKET);
-      formData.append('object_name', values.name);
-
+      
+      // 构建完整的对象路径
+      const objectPath = currentFolderId ? `${currentFolderId}${values.name}` : values.name;
+      formData.append('object_name', objectPath);
+  
       try {
         const response = await fetch(`${MINIO_API_URL}/upload`, {
           method: 'POST',
           body: formData,
         });
-
+  
         if (!response.ok) {
           throw new Error('Upload failed');
         }
-
+  
         message.success(t("sys.menu.file.uploadSuccess"));
-        fetchFiles(); // 刷新文件列表
+        fetchFiles(currentFolderId); // 刷新当前目录
       } catch (error) {
         message.error(t("sys.menu.file.uploadFailed"));
         console.error('Upload error:', error);
       }
     }
-
+  
     setFileModalProps(prev => ({ ...prev, show: false }));
   };
 
@@ -184,18 +169,6 @@ export default function FilePage() {
   };
   
   const columns: ColumnsType<File> = [
-    {
-      title: t("sys.menu.file.icon"),
-      dataIndex: "icon",
-      width: 60,
-      render: (icon: string) => {
-        if (isNil(icon)) return "";
-        if (icon.startsWith("ic")) {
-          return <SvgIcon icon={icon} size={18} className="ant-menu-item-icon" />;
-        }
-        return <Iconify icon={icon} size={18} className="ant-menu-item-icon" />;
-      },
-    },
     {
       title: t("sys.menu.file.name"),
       dataIndex: "name",
@@ -312,11 +285,13 @@ export default function FilePage() {
     },
   ];
 
+  
+  
   const handleBack = () => {
     if (folderStack.length > 0) {
       const newStack = [...folderStack];
-      const parentId = newStack.pop();
-      setCurrentFolderId(parentId || "");
+      const parentPrefix = newStack.pop() || "";
+      setCurrentFolderId(parentPrefix);
       setFolderStack(newStack);
     }
   };
@@ -349,10 +324,16 @@ export default function FilePage() {
       message.warning(t("sys.menu.file.selectDownload"));
       return;
     }
-
+  
     try {
-      // 直接使用 MinIO 提供的下载链接
-      window.open(file.id, '_blank');
+      // 构建完整的对象路径
+      const objectPath = currentFolderId ? `${currentFolderId}${file.name}` : file.name;
+      const params = new URLSearchParams({
+        bucket: DEFAULT_BUCKET,
+        object_name: objectPath
+      });
+      
+      window.open(`${MINIO_API_URL}/download?${params}`, '_blank');
       message.success(t("sys.menu.file.downloadSuccess"));
     } catch (err) {
       message.error(t("sys.menu.file.downloadFailed"));
@@ -360,7 +341,7 @@ export default function FilePage() {
   };
 
   const onCreateFolder = () => {
-    message.warning(t("sys.menu.file.folderNotSupported"));
+    message.info(t("sys.menu.file.createFolderInMinio"));
   };
 
   const onEdit = (formValue: File) => {
@@ -378,21 +359,28 @@ export default function FilePage() {
 
   const onDelete = async (formValue: File) => {
     try {
-      const objectName = encodeURIComponent(formValue.name);
-      const response = await fetch(
-        `${MINIO_API_URL}/delete?bucket=${DEFAULT_BUCKET}&object_name=${objectName}`,
-        { method: 'DELETE' }
-      );
-
+      // 构建完整的对象路径
+      const objectPath = currentFolderId ? `${currentFolderId}${formValue.name}` : formValue.name;
+      
+      const params = new URLSearchParams({
+        bucket: DEFAULT_BUCKET,
+        object_name: objectPath
+      });
+      
+      const response = await fetch(`${MINIO_API_URL}/delete?${params}`, {
+        method: 'DELETE'
+      });
+  
       if (!response.ok) {
-        throw new Error('Delete failed');
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Delete failed");
       }
-
+  
       message.success(t("sys.menu.file.deleteSuccess"));
-      fetchFiles(); // 刷新文件列表
+      fetchFiles(currentFolderId); // 刷新当前目录
     } catch (error) {
-      message.error(t("sys.menu.file.deleteFailed"));
       console.error('Delete error:', error);
+      message.error(t("sys.menu.file.deleteFailed"));
     }
   };
 
@@ -403,8 +391,9 @@ export default function FilePage() {
 
   const handleRowDoubleClick = (record: File) => {
     if (record.type === FileType.FOLDER) {
+      const newPrefix = record.name.endsWith('/') ? record.name : `${record.name}/`;
       setFolderStack(prev => [...prev, currentFolderId]);
-      setCurrentFolderId(record.id);
+      setCurrentFolderId(newPrefix);
     } else {
       onDownload(record);
     }
@@ -413,15 +402,30 @@ export default function FilePage() {
   const extraButtons = (
     <div>
       <input type="file" ref={fileInputRef} hidden onChange={handleFileChange} />
+      {/* 添加刷新按钮 */}
+        <Button 
+        type="primary" 
+        style={{ marginLeft: 8 }}
+        onClick={() => fetchFiles(currentFolderId)}
+        icon={<Iconify icon="ant-design:reload-outlined" />}
+      >
+        {t("sys.menu.file.refresh")}
+      </Button>
       <Button 
         type="primary" 
         style={{ marginLeft: 8 }}
         onClick={handleBack}
         disabled={!folderStack.length}
+        icon={<Iconify icon="ant-design:arrow-left-outlined" />}
       >
         {t("sys.menu.file.back")}
       </Button>
-      <Button type="primary" style={{ marginLeft: 8 }} onClick={onUpload}>
+      <Button 
+        type="primary" 
+        style={{ marginLeft: 8 }} 
+        onClick={onUpload}
+        icon={<Iconify icon="ant-design:upload-outlined" />}
+      >
         {t("sys.menu.file.upload")}
       </Button>
       <Button
@@ -429,6 +433,7 @@ export default function FilePage() {
         style={{ marginLeft: 8 }}
         onClick={() => onDownload(selectedFile)}
         disabled={!selectedFile}
+        icon={<Iconify icon="ant-design:download-outlined" />}
       >
         {t("sys.menu.file.download")}
       </Button>
@@ -436,6 +441,7 @@ export default function FilePage() {
         type="primary" 
         style={{ marginLeft: 8 }} 
         onClick={onCreateFolder}
+        icon={<Iconify icon="ant-design:folder-add-outlined" />}
       >
         {t("sys.menu.file.newFolder")}
       </Button>

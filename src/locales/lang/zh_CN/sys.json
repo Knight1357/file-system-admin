@@ -235,6 +235,7 @@
   "sys.menu.file.newFolder": "新建文件夹",
   "sys.menu.file.operation": "操作",
   "sys.menu.file.parent.name": "父文件夹",
+  "sys.menu.file.refresh": "刷新",
   "sys.menu.file.status": "状态",
   "sys.menu.file.typeFolder": "文件夹",
   "sys.menu.file.uploadFailed": "上传失败",
